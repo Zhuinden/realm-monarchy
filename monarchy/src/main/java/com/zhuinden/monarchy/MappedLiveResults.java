@@ -2,6 +2,9 @@ package com.zhuinden.monarchy;
 
 import android.arch.lifecycle.MutableLiveData;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import io.realm.OrderedRealmCollection;
@@ -50,7 +53,11 @@ public class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<
         monarchy.doWithRealm(new Monarchy.RealmBlock() {
             @Override
             public void doWithRealm(Realm realm) {
-                postValue(mapper.map(realmResults));
+                List<U> list = new LinkedList<>();
+                for(T t: realmResults) {
+                    list.add(mapper.map(t));
+                }
+                postValue(Collections.unmodifiableList(new ArrayList<U>(list)));
             }
         });
     }

@@ -4,6 +4,39 @@ Wrapper over Realm, using Android Architecture Components.
 
 Alpha version.
 
+# How does it work?
+
+1.) Initialize the Monarchy, which is basically a singleton wrapper around Realm
+
+``` java
+Monarchy.init(this); // need to call this only once
+monarchy = new Monarchy.Builder()
+            .setRealmConfiguration(new RealmConfiguration.Builder()
+                               .deleteRealmIfMigrationNeeded()
+                               .initialData(realm -> {
+                                   Dog dog = realm.createObject(Dog.class);
+                                   dog.setName("Corgi");
+                               })
+                               .build())
+            .build();
+```
+                
+2.) create queries as LiveData, and observe them
+
+``` java
+Monarchy monarchy = application.getMonarchy();
+monarchy.findAllWithChanges(realm -> realm.where(Dog.class))
+        .observe(this, dogs -> {...});
+```
+        
+3.) You can also create a Mapper which will map the RealmObject to something else
+
+``` java
+monarchy.findAllWithChanges(realm -> realm.where(Dog.class), dog -> AvDog.create(dog.getName()))
+        .observe(this, dogs -> {...});
+```
+
+All listening and copying happens on a background looper thread.
 
 ## License
 

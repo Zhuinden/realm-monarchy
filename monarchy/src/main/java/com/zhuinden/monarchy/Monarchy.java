@@ -179,7 +179,7 @@ public class Monarchy {
     }
 
     public interface Mapper<R, T> {
-        List<R> map(List<T> from);
+        R map(T from);
     }
 
     public final void doWithRealm(RealmBlock realmBlock) {

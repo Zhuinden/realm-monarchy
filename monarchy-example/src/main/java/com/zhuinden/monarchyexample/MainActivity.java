@@ -17,11 +17,7 @@ import com.zhuinden.simplestack.HistoryBuilder;
 import com.zhuinden.simplestack.StateChange;
 import com.zhuinden.simplestack.StateChanger;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,14 +54,10 @@ public class MainActivity
                                                                              dogs -> Log.i("MainActivity",
                                                                                            "Received dogs: [" + Arrays.toString(
                                                                                                    dogs.toArray()) + "]"));
-        monarchy.findAllWithChanges(realm -> realm.where(Dog.class), realmDogs -> {
-            List<AvDog> list = new LinkedList<>();
-            for(Dog dog : realmDogs) {
-                list.add(AvDog.create(dog.getName()));
-            }
-            return Collections.unmodifiableList(new ArrayList<>(list));
-        }).observe(this,
-                   dogs -> Log.i("MainActivity", "Received mapped dogs: [" + Arrays.toString(dogs.toArray()) + "]"));
+        monarchy.findAllWithChanges(realm -> realm.where(Dog.class), dog -> AvDog.create(dog.getName()))
+                .observe(this,
+                         dogs -> Log.i("MainActivity",
+                                       "Received mapped dogs: [" + Arrays.toString(dogs.toArray()) + "]"));
 
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
