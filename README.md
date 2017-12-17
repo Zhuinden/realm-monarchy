@@ -36,6 +36,14 @@ monarchy.findAllWithChanges(realm -> realm.where(Dog.class), dog -> AvDog.create
         .observe(this, dogs -> {...});
 ```
 
+4.) Instead of using `Realm.getDefaultInstance()` and `close()`, now you should just do
+
+``` java
+monarchy.doWithRealm((realm) -> {
+    ....
+});
+```
+
 All listening and copying happens on a background looper thread.
 
 ## License
