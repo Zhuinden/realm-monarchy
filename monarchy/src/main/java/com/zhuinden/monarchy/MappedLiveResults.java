@@ -16,7 +16,7 @@ import io.realm.RealmResults;
  * Created by Zhuinden on 2017.12.17..
  */
 
-public class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>> implements LiveResults<T> {
+class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>> implements LiveResults<T> {
     private final Monarchy monarchy;
     private final Monarchy.Query<T> query;
     private final Monarchy.Mapper<U, T> mapper;
