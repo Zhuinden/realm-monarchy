@@ -31,7 +31,6 @@ class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>
 
     @Override
     public void onActive() {
-        monarchy.onActive();
         monarchy.startListening(this);
         isActive = true;
     }
@@ -39,7 +38,6 @@ class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>
     @Override
     public void onInactive() {
         monarchy.stopListening(this);
-        monarchy.onInactive();
         isActive = false;
     }
 
@@ -68,7 +66,6 @@ class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>
         super.finalize();
         if(isActive) {
             monarchy.stopListening(this);
-            monarchy.onInactive();
             isActive = false;
         }
     }

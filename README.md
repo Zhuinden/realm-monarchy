@@ -11,14 +11,13 @@ Alpha version.
 ``` java
 Monarchy.init(this); // need to call this only once
 monarchy = new Monarchy.Builder()
-            .setRealmConfiguration(new RealmConfiguration.Builder()
-                               .deleteRealmIfMigrationNeeded()
-                               .initialData(realm -> {
-                                   Dog dog = realm.createObject(Dog.class);
-                                   dog.setName("Corgi");
-                               })
-                               .build())
-            .build();
+    .setRealmConfiguration(new RealmConfiguration.Builder()
+         .deleteRealmIfMigrationNeeded()
+         .initialData(realm -> {
+              Dog dog = realm.createObject(Dog.class);
+              dog.setName("Corgi");
+         }).build()
+    ).build();
 ```
                 
 2.) create queries as LiveData, and observe them

@@ -10,6 +10,8 @@ import android.support.annotation.NonNull;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.realm.Realm;
@@ -24,6 +26,8 @@ import io.realm.RealmResults;
  */
 
 public class Monarchy {
+    private final Executor writeScheduler = Executors.newSingleThreadExecutor();
+
     private static RealmConfiguration invalidDefaultConfig;
 
     public static void init(Context context) {
@@ -98,7 +102,8 @@ public class Monarchy {
         }
     };
 
-    void onActive() {
+    public <T extends RealmModel> void startListening(final LiveResults<T> liveResults) {
+        // build Realm instance
         if(refCount.getAndIncrement() == 0) {
             handlerThread = new HandlerThread("MONARCHY_REALM-#" + hashCode());
             handlerThread.start();
@@ -113,27 +118,7 @@ public class Monarchy {
                 }
             });
         }
-    }
-
-    void onInactive() {
-        if(refCount.decrementAndGet() == 0) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Realm realm = realmThreadLocal.get();
-                    realm.close();
-                    if(Realm.getLocalInstanceCount(config()) <= 0) {
-                        realmThreadLocal.set(null);
-                    }
-                    handlerThread.quit();
-                    handlerThread = null;
-                    handler = null;
-                }
-            });
-        }
-    }
-
-    public <T extends RealmModel> void startListening(final LiveResults<T> liveResults) {
+        // build Realm query
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -155,6 +140,7 @@ public class Monarchy {
         if(handler == null) {
             return; // edge case, hopefully doesn't happen
         }
+        // destroy Realm query
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -163,6 +149,23 @@ public class Monarchy {
                 RealmResults<? extends RealmModel> realmResults = resultsRefs.get().remove(liveResults);
                 if(realmResults != null) {
                     realmResults.removeAllChangeListeners();
+                }
+            }
+        });
+        // destroy Realm instance
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(refCount.decrementAndGet() == 0) {
+                    Realm realm = realmThreadLocal.get();
+                    checkRealmValid(realm);
+                    realm.close();
+                    if(Realm.getLocalInstanceCount(config()) <= 0) {
+                        realmThreadLocal.set(null);
+                    }
+                    handlerThread.quit();
+                    handlerThread = null;
+                    handler = null;
                 }
             }
         });
@@ -193,6 +196,15 @@ public class Monarchy {
                 realm.close();
             }
         }
+    }
+
+    public final void writeAsync(final Realm.Transaction transaction) {
+        writeScheduler.execute(new Runnable() {
+            @Override
+            public void run() {
+                runTransactionSync(transaction);
+            }
+        });
     }
 
     public interface RealmBlock {

@@ -25,7 +25,6 @@ class CopiedLiveResults<T extends RealmModel> extends MutableLiveData<List<T>> i
 
     @Override
     public void onActive() {
-        monarchy.onActive();
         monarchy.startListening(this);
         isActive = true;
     }
@@ -34,7 +33,6 @@ class CopiedLiveResults<T extends RealmModel> extends MutableLiveData<List<T>> i
     public void onInactive() {
         isActive = false;
         monarchy.stopListening(this);
-        monarchy.onInactive();
     }
 
     @Override
@@ -58,7 +56,6 @@ class CopiedLiveResults<T extends RealmModel> extends MutableLiveData<List<T>> i
         super.finalize();
         if(isActive) {
             monarchy.stopListening(this);
-            monarchy.onInactive();
             isActive = false;
         }
     }
