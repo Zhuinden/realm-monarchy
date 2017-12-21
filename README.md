@@ -4,6 +4,24 @@ A wrapper over Realm, that exposes RealmResults as various forms of LiveData.
 
 With that, you can use a singleton Monarchy instance to manage Realm queries, and possibly make it easier to hide Realm as implementation of the data layer.
 
+# Adding to project
+
+To use `Monarchy`, you need to add as a dependency:
+
+    implementation 'com.github.Zhuinden:realm-monarchy:0.1.0'
+    
+And it's available on Jitpack, so you need to add
+
+``` groovy
+allprojects {
+    repositories {
+        // ...
+        maven { url "https://jitpack.io" }
+    }
+    // ...
+}
+```
+
 # How can I use it?
 
 ## Initialization
