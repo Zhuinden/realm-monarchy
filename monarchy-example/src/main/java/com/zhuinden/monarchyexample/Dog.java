@@ -1,19 +1,16 @@
 package com.zhuinden.monarchyexample;
 
-import io.realm.RealmObject;
+import com.google.auto.value.AutoValue;
 
 /**
  * Created by Zhuinden on 2017.12.17..
  */
 
-public class Dog extends RealmObject {
-    private String name;
+@AutoValue
+public abstract class Dog {
+    public abstract String name();
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public static Dog create(String name) {
+        return new AutoValue_Dog(name);
     }
 }

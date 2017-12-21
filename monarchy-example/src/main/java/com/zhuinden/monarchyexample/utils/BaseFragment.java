@@ -1,4 +1,4 @@
-package com.zhuinden.monarchyexample;
+package com.zhuinden.monarchyexample.utils;
 
 import android.support.v4.app.Fragment;
 

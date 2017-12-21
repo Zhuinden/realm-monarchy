@@ -1,4 +1,4 @@
-package com.zhuinden.monarchyexample;
+package com.zhuinden.monarchyexample.utils;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,11 +23,12 @@ public class FragmentStateChanger {
 
     public void handleStateChange(StateChange stateChange) {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().disallowAddToBackStack();
-        if(stateChange.getDirection() == StateChange.FORWARD) {
-            fragmentTransaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left, R.anim.slide_in_from_right, R.anim.slide_out_to_left);
-        } else if(stateChange.getDirection() == StateChange.BACKWARD) {
-            fragmentTransaction.setCustomAnimations(R.anim.slide_in_from_left, R.anim.slide_out_to_right, R.anim.slide_in_from_left, R.anim.slide_out_to_right);
-        }
+//        if(stateChange.getDirection() == StateChange.FORWARD) {
+//            fragmentTransaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left, R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+//        } else if(stateChange.getDirection() == StateChange.BACKWARD) {
+//            fragmentTransaction.setCustomAnimations(R.anim.slide_in_from_left, R.anim.slide_out_to_right, R.anim.slide_in_from_left, R.anim.slide_out_to_right);
+//        }
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 
         List<BaseKey> previousState = stateChange.getPreviousState();
         List<BaseKey> newState = stateChange.getNewState();
@@ -36,8 +37,8 @@ public class FragmentStateChanger {
             if(fragment != null) {
                 if(!newState.contains(oldKey)) {
                     fragmentTransaction.remove(fragment);
-                } else if(!fragment.isDetached()) {
-                    fragmentTransaction.detach(fragment);
+                } else if(!fragment.isHidden()) {
+                    fragmentTransaction.hide(fragment);
                 }
             }
         }
@@ -48,16 +49,19 @@ public class FragmentStateChanger {
                     if(fragment.isDetached()) {
                         fragmentTransaction.attach(fragment);
                     }
+                    if(fragment.isHidden()) {
+                        fragmentTransaction.show(fragment);
+                    }
                 } else {
                     fragment = newKey.newFragment();
                     fragmentTransaction.add(containerId, fragment, newKey.getFragmentTag());
                 }
             } else {
-                if(fragment != null && !fragment.isDetached()) {
-                    fragmentTransaction.detach(fragment);
+                if(fragment != null && !fragment.isHidden()) {
+                    fragmentTransaction.hide(fragment);
                 }
             }
         }
-        fragmentTransaction.commitNow();
+        fragmentTransaction.commitAllowingStateLoss();
     }
 }

@@ -1,4 +1,4 @@
-package com.zhuinden.monarchyexample;
+package com.zhuinden.monarchyexample.utils;
 
 import android.os.Bundle;
 import android.os.Parcelable;
