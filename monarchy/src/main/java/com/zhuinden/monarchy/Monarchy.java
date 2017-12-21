@@ -24,10 +24,11 @@ import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
- * Created by Zhuinden on 2017.12.17..
+ * Monarchy is a wrapper around Realm that simplifies its lifecycle management, and leverages the power of LiveData.
+ *
+ *
  */
-
-public class Monarchy {
+public final class Monarchy {
     public static class ManagedChangeSet<T extends RealmModel> {
         private final RealmResults<T> realmResults;
         private final OrderedCollectionChangeSet orderedCollectionChangeSet;

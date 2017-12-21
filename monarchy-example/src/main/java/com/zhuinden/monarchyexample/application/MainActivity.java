@@ -7,11 +7,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.zhuinden.monarchy.Monarchy;
-import com.zhuinden.monarchyexample.Dog;
 import com.zhuinden.monarchyexample.R;
 import com.zhuinden.monarchyexample.RealmDog;
 import com.zhuinden.monarchyexample.application.injection.ApplicationComponent;
@@ -22,8 +20,6 @@ import com.zhuinden.simplestack.BackstackDelegate;
 import com.zhuinden.simplestack.HistoryBuilder;
 import com.zhuinden.simplestack.StateChange;
 import com.zhuinden.simplestack.StateChanger;
-
-import java.util.Arrays;
 
 import javax.inject.Inject;
 
@@ -64,15 +60,6 @@ public class MainActivity
 
         ApplicationComponent applicationComponent = CustomApplication.getInjector(this);
         applicationComponent.inject(this);
-
-        monarchy.findAllWithChanges(realm -> realm.where(RealmDog.class)).observe(this,
-                                                                             dogs -> Log.i("MainActivity",
-                                                                                           "Received dogs: [" + Arrays.toString(
-                                                                                                   dogs.toArray()) + "]"));
-        monarchy.findAllWithChanges(realm -> realm.where(RealmDog.class), dog -> Dog.create(dog.getName()))
-                .observe(this,
-                         dogs -> Log.i("MainActivity",
-                                       "Received mapped dogs: [" + Arrays.toString(dogs.toArray()) + "]"));
 
         // TODO: add RealmDog names enum and add a new one every 1 sec
         handler.postDelayed(() -> monarchy.writeAsync(realm -> {

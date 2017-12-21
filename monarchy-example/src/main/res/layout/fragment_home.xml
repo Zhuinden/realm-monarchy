@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/container"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:gravity="center"
@@ -11,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:layout_marginTop="4dp"
-        android:minWidth="120dp"
+        android:minWidth="160dp"
         android:text="Copied"/>
 
     <Button
@@ -20,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:layout_marginTop="4dp"
-        android:minWidth="120dp"
+        android:minWidth="160dp"
         android:text="Mapped"/>
 
     <Button
@@ -29,6 +30,16 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:layout_marginTop="4dp"
-        android:minWidth="120dp"
+        android:minWidth="160dp"
         android:text="Managed"/>
+
+    <Button
+        android:id="@+id/button_mapped_rx"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="4dp"
+        android:minWidth="160dp"
+        android:text="Mapped Rx"/>
+
 </LinearLayout>

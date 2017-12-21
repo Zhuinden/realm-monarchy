@@ -14,7 +14,7 @@ monarchy = new Monarchy.Builder()
     .setRealmConfiguration(new RealmConfiguration.Builder()
          .deleteRealmIfMigrationNeeded()
          .initialData(realm -> {
-              Dog dog = realm.createObject(Dog.class);
+              RealmDog dog = realm.createObject(RealmDog.class);
               dog.setName("Corgi");
          }).build()
     ).build();
@@ -24,14 +24,14 @@ monarchy = new Monarchy.Builder()
 
 ``` java
 Monarchy monarchy = application.getMonarchy();
-monarchy.findAllWithChanges(realm -> realm.where(Dog.class))
+monarchy.findAllWithChanges(realm -> realm.where(RealmDog.class))
         .observe(this, dogs -> {...});
 ```
         
 3.) You can also create a Mapper which will map the RealmObject to something else
 
 ``` java
-monarchy.findAllWithChanges(realm -> realm.where(Dog.class), dog -> AvDog.create(dog.getName()))
+monarchy.findAllWithChanges(realm -> realm.where(RealmDog.class), dog -> Dog.create(dog.getName()))
         .observe(this, dogs -> {...});
 ```
 
@@ -43,7 +43,9 @@ monarchy.doWithRealm((realm) -> {
 });
 ```
 
-All listening and copying happens on a background looper thread.
+Listening for copied/mapped results happens on a background looper thread.
+
+Listening for managed results happens on the UI thread.
 
 ## License
 

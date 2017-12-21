@@ -11,7 +11,7 @@
         android:gravity="center"
         android:paddingBottom="12dp"
         android:paddingTop="12dp"
-        android:text="Mapped"
+        android:text="Mapped Rx"
         android:textStyle="bold"
         android:textSize="22sp"
         android:textColor="@android:color/black"
