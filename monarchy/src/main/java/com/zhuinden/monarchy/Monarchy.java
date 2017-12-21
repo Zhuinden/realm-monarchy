@@ -208,22 +208,11 @@ public final class Monarchy {
     }
 
     public final void doWithRealm(final RealmBlock realmBlock) {
-        callWithRealm(new RealmCall<Object>() {
-            @Override
-            public Object callWithRealm(Realm realm) {
-                realmBlock.doWithRealm(realm);
-                return null;
-            }
-        });
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    public final <T> T callWithRealm(RealmCall<T> callable) {
         RealmConfiguration configuration = getRealmConfiguration();
         Realm realm = null;
         try {
             realm = Realm.getInstance(configuration);
-            return callable.callWithRealm(realm);
+            realmBlock.doWithRealm(realm);
         } finally {
             if(realm != null) {
                 realm.close();
@@ -242,10 +231,6 @@ public final class Monarchy {
 
     public interface RealmBlock {
         void doWithRealm(Realm realm);
-    }
-
-    public interface RealmCall<T> {
-        T callWithRealm(Realm realm);
     }
 
     public <T extends RealmModel> List<T> findAllSync(Realm realm, Query<T> query) {

@@ -53,4 +53,6 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.11'
 
     implementation "android.arch.lifecycle:reactivestreams:1.0.0"
+
+    annotationProcessor 'dk.ilios:realmfieldnameshelper:1.1.1'
 }
