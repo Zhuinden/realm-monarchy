@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.realm.OrderedCollectionChangeSet;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmConfiguration;
@@ -26,6 +28,25 @@ import io.realm.RealmResults;
  */
 
 public class Monarchy {
+    public static class ManagedChangeSet<T extends RealmModel> {
+        private final RealmResults<T> realmResults;
+        private final OrderedCollectionChangeSet orderedCollectionChangeSet;
+
+        ManagedChangeSet(RealmResults<T> realmResults, OrderedCollectionChangeSet orderedCollectionChangeSet) {
+            this.realmResults = realmResults;
+            this.orderedCollectionChangeSet = orderedCollectionChangeSet;
+        }
+
+        public RealmResults<T> getRealmResults() {
+            return realmResults;
+        }
+
+        @Nullable
+        public OrderedCollectionChangeSet getOrderedCollectionChangeSet() {
+            return orderedCollectionChangeSet;
+        }
+    }
+
     private final Executor writeScheduler = Executors.newSingleThreadExecutor();
 
     private static RealmConfiguration invalidDefaultConfig;
@@ -71,7 +92,7 @@ public class Monarchy {
         }
     }
 
-    private RealmConfiguration config() {
+    public final RealmConfiguration getRealmConfiguration() {
         return this.realmConfiguration == null ? getDefaultConfiguration() : this.realmConfiguration;
     }
 
@@ -111,7 +132,7 @@ public class Monarchy {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Realm realm = Realm.getInstance(config());
+                    Realm realm = Realm.getInstance(getRealmConfiguration());
                     if(realmThreadLocal.get() == null) {
                         realmThreadLocal.set(realm);
                     }
@@ -160,7 +181,7 @@ public class Monarchy {
                     Realm realm = realmThreadLocal.get();
                     checkRealmValid(realm);
                     realm.close();
-                    if(Realm.getLocalInstanceCount(config()) <= 0) {
+                    if(Realm.getLocalInstanceCount(getRealmConfiguration()) <= 0) {
                         realmThreadLocal.set(null);
                     }
                     handlerThread.quit();
@@ -186,7 +207,7 @@ public class Monarchy {
     }
 
     public final void doWithRealm(RealmBlock realmBlock) {
-        RealmConfiguration configuration = config();
+        RealmConfiguration configuration = getRealmConfiguration();
         Realm realm = null;
         try {
             realm = Realm.getInstance(configuration);
@@ -223,5 +244,10 @@ public class Monarchy {
     public <T extends RealmModel, U> LiveData<List<U>> findAllWithChanges(Query<T> query, Mapper<U, T> mapper) {
         assertMainThread();
         return new MappedLiveResults<>(this, query, mapper);
+    }
+
+    public <T extends RealmModel> LiveData<ManagedChangeSet<T>> findAllManagedWithChanges(Query<T> query) {
+        assertMainThread();
+        return new ManagedLiveResults<T>(this, query);
     }
 }
