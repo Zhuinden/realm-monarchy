@@ -65,7 +65,8 @@ public class MappedFragment
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(mappedDogAdapter);
 
-        dogs = monarchy.findAllWithChanges(realm -> realm.where(RealmDog.class), from -> Dog.create(from.getName()));
+        dogs = monarchy.findAllMappedWithChanges(realm -> realm.where(RealmDog.class),
+                                                 from -> Dog.create(from.getName()));
         dogs.observeForever(observer); // detach != destroy in fragments so this is manual
     }
 

@@ -207,12 +207,23 @@ public final class Monarchy {
         R map(T from);
     }
 
-    public final void doWithRealm(RealmBlock realmBlock) {
+    public final void doWithRealm(final RealmBlock realmBlock) {
+        callWithRealm(new RealmCall<Object>() {
+            @Override
+            public Object callWithRealm(Realm realm) {
+                realmBlock.doWithRealm(realm);
+                return null;
+            }
+        });
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public final <T> T callWithRealm(RealmCall<T> callable) {
         RealmConfiguration configuration = getRealmConfiguration();
         Realm realm = null;
         try {
             realm = Realm.getInstance(configuration);
-            realmBlock.doWithRealm(realm);
+            return callable.callWithRealm(realm);
         } finally {
             if(realm != null) {
                 realm.close();
@@ -233,16 +244,20 @@ public final class Monarchy {
         void doWithRealm(Realm realm);
     }
 
+    public interface RealmCall<T> {
+        T callWithRealm(Realm realm);
+    }
+
     public <T extends RealmModel> List<T> findAllSync(Realm realm, Query<T> query) {
         return query.createQuery(realm).findAll().createSnapshot();
     }
 
-    public <T extends RealmModel> LiveData<List<T>> findAllWithChanges(Query<T> query) {
+    public <T extends RealmModel> LiveData<List<T>> findAllCopiedWithChanges(Query<T> query) {
         assertMainThread();
         return new CopiedLiveResults<T>(this, query);
     }
 
-    public <T extends RealmModel, U> LiveData<List<U>> findAllWithChanges(Query<T> query, Mapper<U, T> mapper) {
+    public <T extends RealmModel, U> LiveData<List<U>> findAllMappedWithChanges(Query<T> query, Mapper<U, T> mapper) {
         assertMainThread();
         return new MappedLiveResults<>(this, query, mapper);
     }

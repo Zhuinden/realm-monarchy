@@ -63,7 +63,7 @@ public class CopiedFragment
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(copiedDogAdapter);
 
-        dogs = monarchy.findAllWithChanges(realm -> realm.where(RealmDog.class));
+        dogs = monarchy.findAllCopiedWithChanges(realm -> realm.where(RealmDog.class));
         dogs.observeForever(observer); // detach != destroy in fragments so this is manual
     }
 

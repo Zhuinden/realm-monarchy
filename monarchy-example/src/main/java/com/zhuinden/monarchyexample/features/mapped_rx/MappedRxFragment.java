@@ -64,7 +64,7 @@ public class MappedRxFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LiveData<List<Dog>> dogs = monarchy.findAllWithChanges(realm -> realm.where(RealmDog.class),
+        LiveData<List<Dog>> dogs = monarchy.findAllMappedWithChanges(realm -> realm.where(RealmDog.class),
                                                                from -> Dog.create(from.getName()));
         this.dogs = Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(getActivity(), dogs));
     }
