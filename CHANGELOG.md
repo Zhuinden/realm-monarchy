@@ -1,3 +1,9 @@
+# Monarchy 0.1.1 (2018-01-02)
+
+- Javadocs.
+
+- `startListening(LiveResults)` and `stopListening(LiveResults)` is no longer public, because it should have been package-private.
+
 # Monarchy 0.1.0 (2017-12-21)
 
 - Initial release of Monarchy.
