@@ -1,5 +1,7 @@
 package com.zhuinden.monarchyexample;
 
+import android.support.v7.util.DiffUtil;
+
 import io.realm.RealmObject;
 
 /**
@@ -8,6 +10,18 @@ import io.realm.RealmObject;
 
 public class RealmDog
         extends RealmObject {
+    public static DiffUtil.ItemCallback<RealmDog> ITEM_CALLBACK = new DiffUtil.ItemCallback<RealmDog>() {
+        @Override
+        public boolean areItemsTheSame(RealmDog oldItem, RealmDog newItem) {
+            return oldItem.name.equals(newItem.name);
+        }
+
+        @Override
+        public boolean areContentsTheSame(RealmDog oldItem, RealmDog newItem) {
+            return oldItem.name.equals(newItem.name);
+        }
+    };
+
     private String name;
 
     public String getName() {

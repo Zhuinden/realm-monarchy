@@ -7,6 +7,7 @@ import com.zhuinden.monarchyexample.features.home.HomeFragment;
 import com.zhuinden.monarchyexample.features.managed.ManagedFragment;
 import com.zhuinden.monarchyexample.features.mapped.MappedFragment;
 import com.zhuinden.monarchyexample.features.mapped_rx.MappedRxFragment;
+import com.zhuinden.monarchyexample.features.paged.PagedFragment;
 
 import javax.inject.Singleton;
 
@@ -35,4 +36,6 @@ public interface ApplicationComponent {
     void inject(MappedFragment mappedFragment);
 
     void inject(MappedRxFragment mappedRxFragment);
+
+    void inject(PagedFragment pagedFragment);
 }

@@ -17,7 +17,7 @@ import com.zhuinden.monarchyexample.features.home.HomeKey;
 import com.zhuinden.monarchyexample.utils.BaseKey;
 import com.zhuinden.monarchyexample.utils.FragmentStateChanger;
 import com.zhuinden.simplestack.BackstackDelegate;
-import com.zhuinden.simplestack.HistoryBuilder;
+import com.zhuinden.simplestack.History;
 import com.zhuinden.simplestack.StateChange;
 import com.zhuinden.simplestack.StateChanger;
 
@@ -45,9 +45,10 @@ public class MainActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        backstackDelegate = new BackstackDelegate(null);
-        backstackDelegate.onCreate(savedInstanceState, getLastCustomNonConfigurationInstance(), HistoryBuilder.single(
-                HomeKey.create()));
+        backstackDelegate = new BackstackDelegate();
+        backstackDelegate.onCreate(savedInstanceState,
+                                   getLastCustomNonConfigurationInstance(),
+                                   History.single(HomeKey.create()));
         backstackDelegate.registerForLifecycleCallbacks(this);
         super.onCreate(savedInstanceState);
 

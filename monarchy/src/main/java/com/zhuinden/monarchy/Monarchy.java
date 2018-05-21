@@ -1,13 +1,22 @@
 package com.zhuinden.monarchy;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.paging.DataSource;
+import android.arch.paging.LivePagedListBuilder;
+import android.arch.paging.PagedList;
+import android.arch.paging.PositionalDataSource;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +32,13 @@ import io.realm.RealmModel;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
+
 /**
  * Monarchy is a wrapper around Realm that simplifies its lifecycle management, and leverages the power of LiveData.
  *
  * Not only does it auto-manage the Realm lifecycle, but specifically prevents the ability to use Realm in such a way that it is impossible to leave a Realm instance open by accident.
  *
- * In case of `copied` or `mapped` results, the queries are evaluated on a background looper thread.
+ * In case of `copied`, `mapped`, or `paged` results, the queries are evaluated on a background looper thread.
  *
  * In case of `managed` results, the RealmResults is provided along with its change set.
  */
@@ -61,7 +71,7 @@ public final class Monarchy {
          *
          * @return the change set
          */
-        @Nullable
+        @NonNull
         public OrderedCollectionChangeSet getOrderedCollectionChangeSet() {
             return orderedCollectionChangeSet;
         }
@@ -164,7 +174,7 @@ public final class Monarchy {
         }
     };
 
-    <T extends RealmModel> void startListening(final LiveResults<T> liveResults) {
+    <T extends RealmModel> void startListening(@NonNull final LiveResults<T> liveResults) {
         // build Realm instance
         if(refCount.getAndIncrement() == 0) {
             handlerThread = new HandlerThread("MONARCHY_REALM-#" + hashCode());
@@ -198,7 +208,7 @@ public final class Monarchy {
         });
     }
 
-    <T extends RealmModel> void stopListening(final LiveResults<T> liveResults) {
+    <T extends RealmModel> void stopListening(@NonNull final LiveResults<T> liveResults) {
         if(handler == null) {
             return; // edge case, hopefully doesn't happen
         }
@@ -316,8 +326,8 @@ public final class Monarchy {
      *
      * The items are copied out with `realm.copyFromRealm(results)`.
      *
-     * @param query  the query
-     * @param <T> the RealmModel type
+     * @param query the query
+     * @param <T>   the RealmModel type
      * @return the LiveData
      */
     public <T extends RealmModel> LiveData<List<T>> findAllCopiedWithChanges(Query<T> query) {
@@ -330,8 +340,8 @@ public final class Monarchy {
      *
      * The items are mapped out with the provided {@link Mapper}.
      *
-     * @param query  the query
-     * @param <T> the RealmModel type
+     * @param query the query
+     * @param <T>   the RealmModel type
      * @return the LiveData
      */
     public <T extends RealmModel, U> LiveData<List<U>> findAllMappedWithChanges(Query<T> query, Mapper<U, T> mapper) {
@@ -345,11 +355,201 @@ public final class Monarchy {
      * The managed change set contains the OrderedCollectionChangeSet evaluated by Realm.
      *
      * @param query the query
-     * @param <T> the RealmModel type
+     * @param <T>   the RealmModel type
      * @return the LiveData
      */
     public <T extends RealmModel> LiveData<ManagedChangeSet<T>> findAllManagedWithChanges(Query<T> query) {
         assertMainThread();
         return new ManagedLiveResults<T>(this, query);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // PAGING
+    ////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Creates a DataSource.Factory<Integer, T> that can be used for creating a paged result set.
+     */
+    public <T extends RealmModel> DataSource.Factory<Integer, T> createDataSourceFactory(Query<T> query) {
+        assertMainThread();
+        PagedLiveResults<T> liveResults = new PagedLiveResults<T>(this, query);
+        return new RealmDataSourceFactory<>(this, liveResults);
+    }
+
+    /**
+     * Returns a LiveData that evaluates the new results on a background looper thread.
+     *
+     * The resulting list is driven by a PositionalDataSource from the Paging Library.
+     *
+     * The fetch executor of the provided LivePagedListBuilder will be overridden with Monarchy's own FetchExecutor that Monarchy runs its queries on.
+     */
+    public <R, T extends RealmModel> LiveData<PagedList<R>> findAllPagedWithChanges(DataSource.Factory<Integer, T> dataSourceFactory, LivePagedListBuilder<Integer, R> livePagedListBuilder) {
+        assertMainThread();
+        final MediatorLiveData<PagedList<R>> mediator = new MediatorLiveData<>();
+        if(!(dataSourceFactory instanceof RealmDataSourceFactory)) {
+            throw new IllegalArgumentException(
+                    "Monarchy is only compatible with DataSource.Factory created by Monarchy.");
+        }
+        RealmDataSourceFactory<T> realmDataSourceFactory = (RealmDataSourceFactory<T>) dataSourceFactory;
+        PagedLiveResults<T> liveResults = realmDataSourceFactory.pagedLiveResults;
+        mediator.addSource(liveResults, new Observer<PagedList<T>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<T> ts) {
+                // do nothing, this is to intercept `onActive()` calls to ComputableLiveData
+            }
+        });
+        LiveData<PagedList<R>> computableLiveData = livePagedListBuilder
+                .setFetchExecutor(new RealmQueryExecutor(this))
+                .build();
+        mediator.addSource(computableLiveData, new Observer<PagedList<R>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<R> data) {
+                mediator.postValue(data);
+            }
+        });
+        return mediator;
+    }
+
+    private static class RealmQueryExecutor
+            implements Executor {
+        final Monarchy monarchy;
+
+        public RealmQueryExecutor(Monarchy monarchy) {
+            this.monarchy = monarchy;
+        }
+
+        @Override
+        public void execute(@NonNull Runnable command) {
+            if(monarchy.handler == null) {
+                throw new IllegalStateException("The handler thread is not open even though it should be");
+            }
+            if(Looper.myLooper() == monarchy.handler.getLooper()) {
+                command.run();
+            } else {
+                monarchy.handler.post(command);
+            }
+        }
+    }
+
+    /**
+     * From Paging Library
+     */
+    static abstract class TiledDataSource<T>
+            extends PositionalDataSource<T> {
+        @WorkerThread
+        public abstract int countItems();
+
+        @WorkerThread
+        public abstract List<T> loadRange(int startPosition, int count);
+
+        @Override
+        public final void loadInitial(@NonNull LoadInitialParams params,
+                                      @NonNull LoadInitialCallback<T> callback) {
+            int totalCount = countItems();
+            if(totalCount == 0) {
+                callback.onResult(Collections.<T>emptyList(), 0, 0);
+                return;
+            }
+
+            // bound the size requested, based on known count
+            final int firstLoadPosition = computeInitialLoadPosition(params, totalCount);
+            final int firstLoadSize = computeInitialLoadSize(params, firstLoadPosition, totalCount);
+
+            // convert from legacy behavior
+            List<T> list = loadRange(firstLoadPosition, firstLoadSize);
+            if(list != null && list.size() == firstLoadSize) {
+                callback.onResult(list, firstLoadPosition, totalCount);
+            } else {
+                // null list, or size doesn't match request
+                // The size check is a WAR for Room 1.0, subsequent versions do the check in Room
+                invalidate();
+            }
+        }
+
+        @Override
+        public final void loadRange(@NonNull LoadRangeParams params,
+                                    @NonNull LoadRangeCallback<T> callback) {
+            List<T> list = loadRange(params.startPosition, params.loadSize);
+            if(list != null) {
+                callback.onResult(list);
+            } else {
+                invalidate();
+            }
+        }
+    }
+
+    static class RealmTiledDataSource<T extends RealmModel>
+            extends TiledDataSource<T> {
+        final Monarchy monarchy;
+        final LiveResults<T> liveResults;
+
+        // WORKER THREAD
+        public RealmTiledDataSource(Monarchy monarchy, LiveResults<T> liveResults) {
+            this.monarchy = monarchy;
+            this.liveResults = liveResults;
+        }
+
+        @SuppressWarnings("unchecked")
+        @WorkerThread
+        public int countItems() {
+            Realm realm = monarchy.realmThreadLocal.get();
+            RealmResults<T> results = (RealmResults<T>) monarchy.resultsRefs.get().get(liveResults);
+            if(realm.isClosed() || results == null || !results.isValid()) {
+                return 0;
+            }
+            return results.size();
+        }
+
+        @Override
+        public boolean isInvalid() {
+            Realm realm = monarchy.realmThreadLocal.get();
+            realm.refresh();
+            return super.isInvalid();
+        }
+
+        @SuppressWarnings("unchecked")
+        @WorkerThread
+        @Override
+        public List<T> loadRange(final int startPosition, final int count) {
+            final int countItems = countItems();
+            if(countItems == 0) {
+                return Collections.emptyList();
+            }
+            final List<T> list = new ArrayList<>(count);
+            monarchy.doWithRealm(new Monarchy.RealmBlock() {
+                @Override
+                public void doWithRealm(Realm realm) {
+                    RealmResults<T> results = (RealmResults<T>) monarchy.resultsRefs.get().get(liveResults);
+                    for(int i = startPosition; i < startPosition + count && i < countItems; i++) {
+                        // noinspection ConstantConditions
+                        list.add(realm.copyFromRealm(results.get(i)));
+                    }
+                }
+            });
+
+            return Collections.unmodifiableList(list);
+        }
+    }
+
+    private static class RealmDataSourceFactory<T extends RealmModel>
+            extends DataSource.Factory<Integer, T> {
+        Monarchy monarchy;
+        final PagedLiveResults<T> pagedLiveResults;
+
+        public RealmDataSourceFactory(Monarchy monarchy, PagedLiveResults<T> pagedLiveResults) {
+            this.monarchy = monarchy;
+            this.pagedLiveResults = pagedLiveResults;
+        }
+
+        @Override
+        public DataSource<Integer, T> create() {
+            RealmTiledDataSource<T> dataSource = new RealmTiledDataSource<>(monarchy, pagedLiveResults);
+            pagedLiveResults.setDataSource(dataSource);
+            return dataSource;
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // PAGING END
+    ////////////////////////////////////////////////////////////////////////////////
 }

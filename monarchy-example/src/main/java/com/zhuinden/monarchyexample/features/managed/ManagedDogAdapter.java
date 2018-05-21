@@ -46,7 +46,7 @@ class ManagedDogAdapter
 
         OrderedCollectionChangeSet changeSet = changes.getOrderedCollectionChangeSet();
         // null Changes means the async query returns the first time.
-        if(changeSet == null) {
+        if(changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
             notifyDataSetChanged();
             return;
         }
