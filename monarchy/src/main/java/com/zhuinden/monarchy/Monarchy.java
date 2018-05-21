@@ -368,7 +368,7 @@ public final class Monarchy {
     ////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Creates a DataSource.Factory<Integer, T> that can be used for creating a paged result set.
+     * Creates a DataSource.Factory of (Integer, T) that can be used for creating a paged result set.
      */
     public <T extends RealmModel> DataSource.Factory<Integer, T> createDataSourceFactory(Query<T> query) {
         assertMainThread();
