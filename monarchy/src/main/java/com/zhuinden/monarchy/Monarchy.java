@@ -421,7 +421,8 @@ public final class Monarchy {
         @Override
         public void execute(@NonNull Runnable command) {
             if(monarchy.handler == null) {
-                throw new IllegalStateException("The handler thread is not open even though it should be");
+                return; // this happens if the gap worker tries to fetch a new page, but the results is no longer observed.
+                // also note that this shouldn't happen if `observe()` is used instead of `observeForever()`.
             }
             if(Looper.myLooper() == monarchy.handler.getLooper()) {
                 command.run();

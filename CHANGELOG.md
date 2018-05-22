@@ -1,10 +1,12 @@
-# Monarchy 0.2.0 (2018-05-22)
+# Monarchy 0.2.1 (2018-05-22)
 
 - Added `Monarchy.findAllPagedWithChanges()` and `Monarchy.createDataSourceFactory()`.
 
 - Added dependency on `api "android.arch.paging:runtime:1.0.0"` to support `findAllPagedWithChanges()`.
 
 - Updated Realm to 5.1.0. Carried over breaking change that `OrderedCollectionChangeSet` is no longer nullable, and instead must check for `changeSet.getState() == State.INITIAL`. This is relevant in `managed` mode.
+
+- Compared to 0.2.0, a crash was fixed that happened on back navigation + paged results.
 
 # Monarchy 0.1.1 (2018-01-02)
 
