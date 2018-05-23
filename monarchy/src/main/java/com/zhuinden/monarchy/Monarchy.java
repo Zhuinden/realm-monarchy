@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.Realm;
@@ -43,6 +44,8 @@ import io.realm.RealmResults;
  * In case of `managed` results, the RealmResults is provided along with its change set.
  */
 public final class Monarchy {
+    private final Object LOCK = new Object();
+
     /**
      * A class that contains the RealmResults and the OrderedCollectionChangeSet.
      *
@@ -162,8 +165,8 @@ public final class Monarchy {
         }
     }
 
-    private HandlerThread handlerThread;
-    private Handler handler;
+    private AtomicReference<HandlerThread> handlerThread = new AtomicReference<>();
+    private AtomicReference<Handler> handler = new AtomicReference<>();
     private AtomicInteger refCount = new AtomicInteger(0);
 
     private ThreadLocal<Realm> realmThreadLocal = new ThreadLocal<>();
@@ -177,21 +180,26 @@ public final class Monarchy {
     <T extends RealmModel> void startListening(@NonNull final LiveResults<T> liveResults) {
         // build Realm instance
         if(refCount.getAndIncrement() == 0) {
-            handlerThread = new HandlerThread("MONARCHY_REALM-#" + hashCode());
-            handlerThread.start();
-            handler = new Handler(handlerThread.getLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Realm realm = Realm.getInstance(getRealmConfiguration());
-                    if(realmThreadLocal.get() == null) {
-                        realmThreadLocal.set(realm);
+            synchronized(LOCK) {
+                HandlerThread handlerThread = new HandlerThread("MONARCHY_REALM-#" + hashCode());
+                handlerThread.start();
+                Handler handler = new Handler(handlerThread.getLooper());
+                this.handlerThread.set(handlerThread);
+                this.handler.set(handler);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Realm realm = Realm.getInstance(getRealmConfiguration());
+                        if(realmThreadLocal.get() == null) {
+                            realmThreadLocal.set(realm);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
+
         // build Realm query
-        handler.post(new Runnable() {
+        handler.get().post(new Runnable() {
             @Override
             public void run() {
                 Realm realm = realmThreadLocal.get();
@@ -209,6 +217,7 @@ public final class Monarchy {
     }
 
     <T extends RealmModel> void stopListening(@NonNull final LiveResults<T> liveResults) {
+        Handler handler = this.handler.get();
         if(handler == null) {
             return; // edge case, hopefully doesn't happen
         }
@@ -228,16 +237,18 @@ public final class Monarchy {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if(refCount.decrementAndGet() == 0) {
-                    Realm realm = realmThreadLocal.get();
-                    checkRealmValid(realm);
-                    realm.close();
-                    if(Realm.getLocalInstanceCount(getRealmConfiguration()) <= 0) {
-                        realmThreadLocal.set(null);
+                synchronized(LOCK) {
+                    if(refCount.decrementAndGet() == 0) {
+                        Realm realm = realmThreadLocal.get();
+                        checkRealmValid(realm);
+                        realm.close();
+                        if(Realm.getLocalInstanceCount(getRealmConfiguration()) <= 0) {
+                            realmThreadLocal.set(null);
+                        }
+                        HandlerThread handlerThread = Monarchy.this.handlerThread.getAndSet(null);
+                        Monarchy.this.handler.set(null);
+                        handlerThread.quit();
                     }
-                    handlerThread.quit();
-                    handlerThread = null;
-                    handler = null;
                 }
             }
         });
@@ -332,7 +343,7 @@ public final class Monarchy {
      */
     public <T extends RealmModel> LiveData<List<T>> findAllCopiedWithChanges(Query<T> query) {
         assertMainThread();
-        return new CopiedLiveResults<T>(this, query);
+        return new CopiedLiveResults<>(this, query);
     }
 
     /**
@@ -360,7 +371,7 @@ public final class Monarchy {
      */
     public <T extends RealmModel> LiveData<ManagedChangeSet<T>> findAllManagedWithChanges(Query<T> query) {
         assertMainThread();
-        return new ManagedLiveResults<T>(this, query);
+        return new ManagedLiveResults<>(this, query);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -388,7 +399,7 @@ public final class Monarchy {
         final MediatorLiveData<PagedList<R>> mediator = new MediatorLiveData<>();
         if(!(dataSourceFactory instanceof RealmDataSourceFactory)) {
             throw new IllegalArgumentException(
-                    "Monarchy is only compatible with DataSource.Factory created by Monarchy.");
+                    "The DataSource.Factory provided to this method as the first argument must be the one created by Monarchy.");
         }
         RealmDataSourceFactory<T> realmDataSourceFactory = (RealmDataSourceFactory<T>) dataSourceFactory;
         PagedLiveResults<T> liveResults = realmDataSourceFactory.pagedLiveResults;
@@ -420,14 +431,15 @@ public final class Monarchy {
 
         @Override
         public void execute(@NonNull Runnable command) {
-            if(monarchy.handler == null) {
-                return; // this happens if the gap worker tries to fetch a new page, but the results is no longer observed.
-                // also note that this shouldn't happen if `observe()` is used instead of `observeForever()`.
+            Handler handler = monarchy.handler.get();
+            if(handler == null) {
+                return; // this happens if the gap worker tries to fetch a new page,
+                // but the results is no longer observed, and the handler thread is dead.
             }
-            if(Looper.myLooper() == monarchy.handler.getLooper()) {
+            if(Looper.myLooper() == handler.getLooper()) {
                 command.run();
             } else {
-                monarchy.handler.post(command);
+                handler.post(command);
             }
         }
     }
