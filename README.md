@@ -56,6 +56,16 @@ LiveData<List<Dog>> dogs = monarchy.findAllMappedWithChanges(realm -> realm.wher
 dogs.observe(this, dogs -> {...});
 ```
 
+Using the Android Architecture Components: Paging Library, you can now also obtain the RealmResults as a `LiveData<PagedList<T>>`.
+
+``` java
+DataSource.Factory<Integer, RealmDog> realmDataSourceFactory = monarchy.createDataSourceFactory(realm -> realm.where(RealmDog.class));
+DataSource.Factory<Integer, Dog> dataSourceFactory = realmDataSourceFactory.map(input -> Dog.create(input.getName()));
+LiveData<PagedList<Dog>> dogs = monarchy.findAllPagedWithChanges(realmDataSourceFactory,
+                                                new LivePagedListBuilder<>(dataSourceFactory, 20));
+dogs.observe(this, dogs -> {...});
+```
+
 ## Writes
 
 You can do either synchronous transaction, or have the transaction be executed asynchronously on a dedicated single-threaded pool.
@@ -92,7 +102,9 @@ And otherwise expose the queries as LiveData, and observe them. Whether a LiveDa
 
 # Information
 
-Listening for copied/mapped results happens on a background looper thread.
+Listening for copied/mapped results happens on the background looper thread.
+
+Listening for paged results happens on the background looper thread.
 
 Listening for managed results happens on the UI thread.
 
@@ -101,8 +113,17 @@ Listening for managed results happens on the UI thread.
 ## Why isn't this written with Rx operators?
  
 Because managing ref counting and doing specific callbacks when ref-counting is tricky, while LiveData makes it trivial.
- 
-So if you need LiveData exposed to Rx, then just use:
+
+``` java
+Observable.just(5)
+          .replay(1)
+          .autoConnect(0)
+          .doOnSubscribe(/* onActive */)
+          .doOnUnsubscribe(/* onInactive */)
+          .subscribe()
+```
+
+or something like that. Tricky stuff. So if you need LiveData exposed to Rx, then just use:
 
 ``` java
 Flowable<List<Dog>> dogs = Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(lifecycleOwner, liveData));
@@ -111,7 +132,7 @@ Flowable<List<Dog>> dogs = Flowable.fromPublisher(LiveDataReactiveStreams.toPubl
 with the help of 
 
 ```
-implementation "android.arch.lifecycle:reactivestreams:1.0.0"
+implementation "android.arch.lifecycle:reactivestreams:1.1.1"
 ```
 
 ## How do I open a Realm instance and close it manually, without being in a block?
@@ -126,15 +147,13 @@ Probably when you've finished every Activity. When's that? If you have only 1 fi
 
 ## How should I do schema migrations?
 
-[`RealmAutoMigration`](https://github.com/Zhuinden/realm-helpers/blob/872233b7026546323259d4d608adce6915d53b0c/realm-auto-migration/src/main/java/com/zhuinden/realmautomigration/RealmAutoMigration.java) can help, but you can't specify a transform block yet. So you'll probably want to migrate manually as usual.
+[`RealmAutoMigration`](https://github.com/Zhuinden/realm-helpers/blob/872233b7026546323259d4d608adce6915d53b0c/realm-auto-migration/src/main/java/com/zhuinden/realmautomigration/RealmAutoMigration.java) can help. 
 
-This will most likely change in the next few days? Till then, add it to the RealmConfiguration as you normally would.
+Once you're done migrating your current fields to new fields, it can match the fields and migrate from one schema to another, removing any mismatched properties (or adding the new ones).
 
 ## Why is this library possible?
 
 Because `LiveData` from the Android Architecture Components is the best thing since sliced bread.
-
-The next big explosion will be `PagedList<T>`, after which you'll be able to do `findAllPagedWithChanges()` using Monarchy. I can barely wait.
 
 ## License
 
