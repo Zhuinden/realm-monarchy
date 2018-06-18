@@ -1,19 +1,20 @@
 package com.zhuinden.monarchyexample.features.managed;
 
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.zhuinden.monarchy.Monarchy;
 import com.zhuinden.monarchyexample.R;
 import com.zhuinden.monarchyexample.RealmDog;
+import com.zhuinden.monarchyexample.utils.CustomDiffResult;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.OrderedCollectionChangeSet;
-import io.realm.RealmResults;
 
 /**
  * Created by Zhuinden on 2017.12.21..
@@ -21,7 +22,7 @@ import io.realm.RealmResults;
 
 class ManagedDogAdapter
         extends RecyclerView.Adapter<ManagedDogAdapter.ViewHolder> {
-    private RealmResults<RealmDog> items;
+    private List<RealmDog> items;
 
     public ManagedDogAdapter() {
     }
@@ -38,33 +39,15 @@ class ManagedDogAdapter
 
     @Override
     public int getItemCount() {
-        return items == null || !items.isValid() ? 0 : items.size();
+        return items == null ? 0 : items.size();
     }
 
-    public void updateData(Monarchy.ManagedChangeSet<RealmDog> changes) {
-        this.items = changes.getRealmResults(); // RealmResults always sees the same data, so this is ok.
-
-        OrderedCollectionChangeSet changeSet = changes.getOrderedCollectionChangeSet();
-        // null Changes means the async query returns the first time.
-        if(changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+    public void updateData(List<RealmDog> items, @Nullable CustomDiffResult diffResult) {
+        this.items = items; // RealmResults always sees the same data, so this is ok.
+        if(diffResult == null) {
             notifyDataSetChanged();
-            return;
-        }
-        // For deletions, the adapter has to be notified in reverse order.
-        OrderedCollectionChangeSet.Range[] deletions = changeSet.getDeletionRanges();
-        for(int i = deletions.length - 1; i >= 0; i--) {
-            OrderedCollectionChangeSet.Range range = deletions[i];
-            notifyItemRangeRemoved(range.startIndex, range.length);
-        }
-
-        OrderedCollectionChangeSet.Range[] insertions = changeSet.getInsertionRanges();
-        for(OrderedCollectionChangeSet.Range range : insertions) {
-            notifyItemRangeInserted(range.startIndex, range.length);
-        }
-
-        OrderedCollectionChangeSet.Range[] modifications = changeSet.getChangeRanges();
-        for(OrderedCollectionChangeSet.Range range : modifications) {
-            notifyItemRangeChanged(range.startIndex, range.length);
+        } else {
+            diffResult.dispatchUpdatesTo(this);
         }
     }
 

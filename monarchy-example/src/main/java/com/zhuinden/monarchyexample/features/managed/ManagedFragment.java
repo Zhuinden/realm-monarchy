@@ -38,7 +38,9 @@ public class ManagedFragment
 
     LiveData<Monarchy.ManagedChangeSet<RealmDog>> changes;
     Observer<Monarchy.ManagedChangeSet<RealmDog>> observer = changes -> {
-        managedDogAdapter.updateData(changes);
+        if(changes != null) {
+            managedDogAdapter.updateData(changes.getRealmResults(), new MonarchyDiffResult<>(changes));
+        }
     };
 
     @Override
