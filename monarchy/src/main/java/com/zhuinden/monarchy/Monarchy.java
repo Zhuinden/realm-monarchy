@@ -333,6 +333,48 @@ public final class Monarchy {
     }
 
     /**
+     * Provides ability to synchronously fetch a copied RealmResults.
+     *
+     * @param query Query
+     * @param <T>   RealmObject type
+     * @return the copied list
+     */
+    public <T extends RealmModel> List<T> fetchAllCopiedSync(final Query<T> query) {
+        final AtomicReference<List<T>> ref = new AtomicReference<>();
+        doWithRealm(new RealmBlock() {
+            @Override
+            public void doWithRealm(Realm realm) {
+                ref.set(realm.copyFromRealm(query.createQuery(realm).findAll()));
+            }
+        });
+        return Collections.unmodifiableList(ref.get());
+    }
+
+    /**
+     * Provides ability to synchronously fetch a mapped RealmResults.
+     *
+     * @param query Query
+     * @param <T>   RealmObject type
+     * @param <U>   the mapped type
+     * @return the copied list
+     */
+    public <T extends RealmModel, U> List<U> fetchAllMappedSync(final Query<T> query, final Mapper<U, T> mapper) {
+        final AtomicReference<List<U>> ref = new AtomicReference<>();
+        doWithRealm(new RealmBlock() {
+            @Override
+            public void doWithRealm(Realm realm) {
+                RealmResults<T> results = query.createQuery(realm).findAll();
+                List<U> list = new ArrayList<>(results.size());
+                for(T t: results) {
+                    list.add(mapper.map(t));
+                }
+                ref.set(list);
+            }
+        });
+        return Collections.unmodifiableList(ref.get());
+    }
+
+    /**
      * Returns a LiveData that evaluates the new results on a background looper thread. The observer receives new data when the database changes.
      *
      * The items are copied out with `realm.copyFromRealm(results)`.
@@ -353,6 +395,7 @@ public final class Monarchy {
      *
      * @param query the query
      * @param <T>   the RealmModel type
+     * @param <U>   the mapped type
      * @return the LiveData
      */
     public <T extends RealmModel, U> LiveData<List<U>> findAllMappedWithChanges(Query<T> query, Mapper<U, T> mapper) {

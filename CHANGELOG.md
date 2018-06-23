@@ -1,3 +1,7 @@
+# Monarchy 0.3.0 (2018-06-24)
+
+- Added `Monarchy.fetchAllMappedSync()` and `Monarchy.fetchAllCopiedSync()` for those who desire to abandon all hope (in this case, change notifications). Common in DAO abstractions that ignore reactivity.
+
 # Monarchy 0.2.2 (2018-05-23)
 
 - Added counter-measures against a potential race condition when number of active subscriptions go from `1 -> 0` and `0 -> 1` rapidly.

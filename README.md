@@ -8,7 +8,7 @@ With that, you can use a singleton Monarchy instance to manage Realm queries, an
 
 To use `Monarchy`, you need to add as a dependency:
 
-    implementation 'com.github.Zhuinden:realm-monarchy:0.2.2'
+    implementation 'com.github.Zhuinden:realm-monarchy:0.3.0'
     
 And it's available on Jitpack, so you need to add
 
@@ -65,6 +65,8 @@ LiveData<PagedList<Dog>> dogs = monarchy.findAllPagedWithChanges(realmDataSource
                                                 new LivePagedListBuilder<>(dataSourceFactory, 20));
 dogs.observe(this, dogs -> {...});
 ```
+
+You can also synchronously get mapped/copied results, but it's generally not recommended; it is preferred to find results with changes instead.
 
 ## Writes
 

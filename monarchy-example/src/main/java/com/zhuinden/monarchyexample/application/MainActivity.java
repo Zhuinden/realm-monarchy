@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 
 import com.zhuinden.monarchy.Monarchy;
+import com.zhuinden.monarchyexample.Dog;
 import com.zhuinden.monarchyexample.R;
 import com.zhuinden.monarchyexample.RealmDog;
 import com.zhuinden.monarchyexample.application.injection.ApplicationComponent;
@@ -21,9 +22,14 @@ import com.zhuinden.simplestack.History;
 import com.zhuinden.simplestack.StateChange;
 import com.zhuinden.simplestack.StateChanger;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
+import io.realm.Realm;
+import io.realm.RealmModel;
+import io.realm.RealmQuery;
 
 public class MainActivity
         extends AppCompatActivity
@@ -61,6 +67,10 @@ public class MainActivity
 
         ApplicationComponent applicationComponent = CustomApplication.getInjector(this);
         applicationComponent.inject(this);
+
+        List<RealmDog> realmDogs = monarchy.fetchAllCopiedSync(realm -> realm.where(RealmDog.class));
+        List<Dog> dogs = monarchy.fetchAllMappedSync(realm -> realm.where(RealmDog.class),
+                                                     from -> Dog.create(from.getName()));
 
         // TODO: add RealmDog names enum and add a new one every 1 sec
         handler.postDelayed(() -> monarchy.writeAsync(realm -> {
