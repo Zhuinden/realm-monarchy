@@ -12,7 +12,8 @@ class PagedLiveResults<T extends RealmModel>
         extends MutableLiveData<PagedList<T>>
         implements LiveResults<T> {
     private final Monarchy monarchy;
-    private final Monarchy.Query<T> query;
+
+    private Monarchy.Query<T> query;
 
     private Monarchy.RealmTiledDataSource<T> dataSource;
 
@@ -63,5 +64,10 @@ class PagedLiveResults<T extends RealmModel>
 
     void setDataSource(Monarchy.RealmTiledDataSource<T> dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public void updateQuery(Monarchy.Query<T> query) {
+        this.query = query;
+        dataSource.invalidate();
     }
 }

@@ -1,3 +1,7 @@
+# Monarchy 0.3.1 (2018-07-02)
+
+- Made `Monarchy.RealmDataSourceFactory` public, and added `updateQuery(Query<T> query)` method.
+
 # Monarchy 0.3.0 (2018-06-24)
 
 - Added `Monarchy.fetchAllMappedSync()` and `Monarchy.fetchAllCopiedSync()` for those who desire to abandon all hope (in this case, change notifications). Common in DAO abstractions that ignore reactivity.

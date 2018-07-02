@@ -424,7 +424,7 @@ public final class Monarchy {
     /**
      * Creates a DataSource.Factory of (Integer, T) that can be used for creating a paged result set.
      */
-    public <T extends RealmModel> DataSource.Factory<Integer, T> createDataSourceFactory(Query<T> query) {
+    public <T extends RealmModel> RealmDataSourceFactory<T> createDataSourceFactory(Query<T> query) {
         assertMainThread();
         PagedLiveResults<T> liveResults = new PagedLiveResults<T>(this, query);
         return new RealmDataSourceFactory<>(this, liveResults);
@@ -587,21 +587,35 @@ public final class Monarchy {
         }
     }
 
-    private static class RealmDataSourceFactory<T extends RealmModel>
+    /**
+     * A DataSource.Factory that handles integration of RealmResults through Paging.
+     *
+     * @param <T> the type of the RealmModel
+     */
+    public static final class RealmDataSourceFactory<T extends RealmModel>
             extends DataSource.Factory<Integer, T> {
         Monarchy monarchy;
         final PagedLiveResults<T> pagedLiveResults;
 
-        public RealmDataSourceFactory(Monarchy monarchy, PagedLiveResults<T> pagedLiveResults) {
+        RealmDataSourceFactory(Monarchy monarchy, PagedLiveResults<T> pagedLiveResults) {
             this.monarchy = monarchy;
             this.pagedLiveResults = pagedLiveResults;
         }
 
         @Override
-        public DataSource<Integer, T> create() {
+        public final DataSource<Integer, T> create() {
             RealmTiledDataSource<T> dataSource = new RealmTiledDataSource<>(monarchy, pagedLiveResults);
             pagedLiveResults.setDataSource(dataSource);
             return dataSource;
+        }
+
+        /**
+         * Updates the query that the datasource is evaluated by.
+         *
+         * @param query the query
+         */
+        public final void updateQuery(Query<T> query) {
+            pagedLiveResults.updateQuery(query);
         }
     }
 

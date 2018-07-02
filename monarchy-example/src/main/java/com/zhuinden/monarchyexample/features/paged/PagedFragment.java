@@ -65,8 +65,8 @@ public class PagedFragment
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(pagedDogAdapter);
-        DataSource.Factory<Integer, RealmDog> realmDataSourceFactory = monarchy.createDataSourceFactory(realm -> realm.where(
-                RealmDog.class));
+        DataSource.Factory<Integer, RealmDog> realmDataSourceFactory = monarchy.createDataSourceFactory(
+                realm -> realm.where(RealmDog.class));
         dataSourceFactory = realmDataSourceFactory.map(input -> Dog.create(input.getName()));
         dogs = monarchy.findAllPagedWithChanges(realmDataSourceFactory,
                                                 new LivePagedListBuilder<>(dataSourceFactory, 20));
