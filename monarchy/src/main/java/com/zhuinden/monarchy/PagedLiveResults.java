@@ -3,6 +3,8 @@ package com.zhuinden.monarchy;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.PagedList;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmModel;
@@ -13,7 +15,7 @@ class PagedLiveResults<T extends RealmModel>
         implements LiveResults<T> {
     private final Monarchy monarchy;
 
-    private Monarchy.Query<T> query;
+    private AtomicReference<Monarchy.Query<T>> query;
 
     private Monarchy.RealmTiledDataSource<T> dataSource;
 
@@ -21,7 +23,7 @@ class PagedLiveResults<T extends RealmModel>
 
     PagedLiveResults(Monarchy monarchy, Monarchy.Query<T> query) {
         this.monarchy = monarchy;
-        this.query = query;
+        this.query = new AtomicReference<>(query);
     }
 
     @Override
@@ -38,7 +40,7 @@ class PagedLiveResults<T extends RealmModel>
 
     @Override
     public RealmResults<T> createQuery(Realm realm) {
-        return query.createQuery(realm).findAll(); // sort/distinct should be handled with new predicate type.
+        return query.get().createQuery(realm).findAll(); // sort/distinct should be handled with new predicate type.
         // paged results must be based on synchronous query!
     }
 
@@ -67,7 +69,7 @@ class PagedLiveResults<T extends RealmModel>
     }
 
     public void updateQuery(Monarchy.Query<T> query) {
-        this.query = query;
+        this.query.set(query);
         dataSource.invalidate();
     }
 }

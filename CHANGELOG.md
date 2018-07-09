@@ -1,3 +1,7 @@
+# Monarchy 0.3.2 (2018-07-09)
+
+- Fix that setting the new query should be atomic (and visible on the Monarchy thread).
+
 # Monarchy 0.3.1 (2018-07-02)
 
 - Made `Monarchy.RealmDataSourceFactory` public, and added `updateQuery(Query<T> query)` method.
