@@ -1,3 +1,9 @@
+# Monarchy 0.4.0 (2018-07-23)
+
+- BREAKING: `findAllSync` is renamed to `fetchAllManagedSync`
+- Added `findAllManagedWithChanges(..., asAsync)` to allow synchronous evaluation of managed results.
+- Internal change: `ManagedChangeSet` now uses `setValue` instead of `postValue`
+
 # Monarchy 0.3.2 (2018-07-09)
 
 - Fix that setting the new query should be atomic (and visible on the Monarchy thread).

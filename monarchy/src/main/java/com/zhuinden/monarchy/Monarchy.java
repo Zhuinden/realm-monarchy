@@ -80,7 +80,7 @@ public final class Monarchy {
         }
     }
 
-    private final Executor writeScheduler = Executors.newSingleThreadExecutor();
+    private final Executor writeScheduler;
 
     private static volatile RealmConfiguration invalidDefaultConfig;
 
@@ -120,8 +120,9 @@ public final class Monarchy {
 
     private volatile RealmConfiguration realmConfiguration = null;
 
-    Monarchy(RealmConfiguration configuration) {
+    Monarchy(RealmConfiguration configuration, Executor writeScheduler) {
         this.realmConfiguration = configuration;
+        this.writeScheduler = writeScheduler;
     }
 
     /**
@@ -131,6 +132,7 @@ public final class Monarchy {
      */
     public static class Builder {
         private RealmConfiguration realmConfiguration;
+        private Executor writeScheduler = Executors.newSingleThreadExecutor();
 
         public Builder() {
             this.realmConfiguration = Realm.getDefaultConfiguration();
@@ -141,8 +143,13 @@ public final class Monarchy {
             return this;
         }
 
+        public Builder setWriteAsyncExecutor(Executor executor) {
+            this.writeScheduler = executor;
+            return this;
+        }
+
         public Monarchy build() {
-            return new Monarchy(realmConfiguration);
+            return new Monarchy(realmConfiguration, writeScheduler);
         }
     }
 
@@ -323,12 +330,14 @@ public final class Monarchy {
      *
      * What is actually returned is a snapshot collection.
      *
+     * This method only makes sense either if Realm is opened manually, or inside a {@link Monarchy#doWithRealm(RealmBlock)} (or {@link Monarchy#runTransactionSync(Realm.Transaction)} method).
+     *
      * @param realm Realm
      * @param query Query
      * @param <T>   RealmObject type
      * @return the snapshot collection
      */
-    public <T extends RealmModel> List<T> findAllSync(Realm realm, Query<T> query) {
+    public <T extends RealmModel> List<T> fetchAllManagedSync(Realm realm, Query<T> query) {
         return query.createQuery(realm).findAll().createSnapshot();
     }
 
@@ -413,8 +422,22 @@ public final class Monarchy {
      * @return the LiveData
      */
     public <T extends RealmModel> LiveData<ManagedChangeSet<T>> findAllManagedWithChanges(Query<T> query) {
+        return findAllManagedWithChanges(query, true);
+    }
+
+    /**
+     * Returns a LiveData that evaluates the new results on the UI thread, using Realm's Query API. The observer receives new data when the database changes.
+     *
+     * The managed change set contains the OrderedCollectionChangeSet evaluated by Realm.
+     *
+     * @param query the query
+     * @param <T>   the RealmModel type
+     * @param asAsync whether the query should be executed with the Async Query API
+     * @return the LiveData
+     */
+    public <T extends RealmModel> LiveData<ManagedChangeSet<T>> findAllManagedWithChanges(Query<T> query, boolean asAsync) {
         assertMainThread();
-        return new ManagedLiveResults<>(this, query);
+        return new ManagedLiveResults<>(this, query, asAsync);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
