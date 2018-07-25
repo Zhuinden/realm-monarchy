@@ -65,7 +65,7 @@ public class ManagedFragment
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(managedDogAdapter);
 
-        changes = monarchy.findAllManagedWithChanges(realm -> realm.where(RealmDog.class));
+        changes = monarchy.findAllManagedWithChangesSync(realm -> realm.where(RealmDog.class));
         changes.observeForever(observer); // detach != destroy in fragments so this is manual
     }
 

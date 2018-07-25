@@ -412,8 +412,13 @@ public final class Monarchy {
         return new MappedLiveResults<>(this, query, mapper);
     }
 
+    private <T extends RealmModel> LiveData<ManagedChangeSet<T>> findAllManagedWithChanges(Query<T> query, boolean asAsync) {
+        assertMainThread();
+        return new ManagedLiveResults<>(this, query, asAsync);
+    }
+
     /**
-     * Returns a LiveData that evaluates the new results on the UI thread, using Realm's Async API. The observer receives new data when the database changes.
+     * Returns a LiveData that evaluates the new results on the UI thread, using Realm's Async Query API. The observer receives new data when the database changes.
      *
      * The managed change set contains the OrderedCollectionChangeSet evaluated by Realm.
      *
@@ -426,18 +431,17 @@ public final class Monarchy {
     }
 
     /**
-     * Returns a LiveData that evaluates the new results on the UI thread, using Realm's Query API. The observer receives new data when the database changes.
+     * Returns a LiveData that evaluates the new results on the UI thread, using Realm's Sync Query API. The observer receives new data when the database changes.
      *
      * The managed change set contains the OrderedCollectionChangeSet evaluated by Realm.
      *
      * @param query the query
      * @param <T>   the RealmModel type
-     * @param asAsync whether the query should be executed with the Async Query API
+
      * @return the LiveData
      */
-    public <T extends RealmModel> LiveData<ManagedChangeSet<T>> findAllManagedWithChanges(Query<T> query, boolean asAsync) {
-        assertMainThread();
-        return new ManagedLiveResults<>(this, query, asAsync);
+    public <T extends RealmModel> LiveData<ManagedChangeSet<T>> findAllManagedWithChangesSync(Query<T> query) {
+        return findAllManagedWithChanges(query, false);
     }
 
     ////////////////////////////////////////////////////////////////////////////////

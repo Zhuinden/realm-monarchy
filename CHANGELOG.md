@@ -1,3 +1,7 @@
+# Monarchy 0.4.1 (2018-07-25)
+- CHANGE: `findAllManagedWithChanges(..., asAsync = false)` is replaced with `findAllManagedWithChangesSync(...)` (for better Kotlin support)
+- FIX: `asAsync = false` was not working (whoops)
+
 # Monarchy 0.4.0 (2018-07-23)
 
 - BREAKING: `findAllSync` is renamed to `fetchAllManagedSync`
