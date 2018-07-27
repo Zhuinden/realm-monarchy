@@ -8,7 +8,7 @@ With that, you can use a singleton Monarchy instance to manage Realm queries, an
 
 To use `Monarchy`, you need to add as a dependency:
 
-    implementation 'com.github.Zhuinden:realm-monarchy:0.4.1'
+    implementation 'com.github.Zhuinden:realm-monarchy:0.4.2'
     
 And it's available on Jitpack, so you need to add
 

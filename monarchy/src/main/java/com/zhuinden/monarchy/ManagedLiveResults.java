@@ -78,8 +78,13 @@ class ManagedLiveResults<T extends RealmModel>
 
     private OrderedRealmCollectionChangeListener<RealmResults<T>> realmChangeListener = new OrderedRealmCollectionChangeListener<RealmResults<T>>() {
         @Override
-        public void onChange(@NonNull RealmResults<T> realmResults, @Nullable OrderedCollectionChangeSet changeSet) {
-            setValue(new Monarchy.ManagedChangeSet<>(realmResults, changeSet));
+        public void onChange(@NonNull RealmResults<T> realmResults, @NonNull OrderedCollectionChangeSet changeSet) {
+            Monarchy.ManagedChangeSet<T> managedChangeSet = new Monarchy.ManagedChangeSet<>(realmResults, changeSet);
+            if(!asAsync && changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+                setValue(managedChangeSet);
+            } else {
+                postValue(managedChangeSet);
+            }
         }
     };
     private Realm realm;

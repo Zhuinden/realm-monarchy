@@ -1,3 +1,6 @@
+# Monarchy 0.4.2 (2018-07-27)
+- CHANGE/FIX: `ManagedChangeSet` uses `setValue` only for the initial load of synchronous query, otherwise uses `postValue` to prevent `java.lang.IllegalStateException: Cannot call this method while RecyclerView is computing a layout or scrolling`
+
 # Monarchy 0.4.1 (2018-07-25)
 - CHANGE: `findAllManagedWithChanges(..., asAsync = false)` is replaced with `findAllManagedWithChangesSync(...)` (for better Kotlin support)
 - FIX: `asAsync = false` was not working (whoops)
