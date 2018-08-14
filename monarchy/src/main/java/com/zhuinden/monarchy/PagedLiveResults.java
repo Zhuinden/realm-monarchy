@@ -70,6 +70,8 @@ class PagedLiveResults<T extends RealmModel>
 
     public void updateQuery(Monarchy.Query<T> query) {
         this.query.set(query);
-        dataSource.invalidate();
+        if(dataSource != null) {
+            dataSource.invalidate();
+        }
     }
 }

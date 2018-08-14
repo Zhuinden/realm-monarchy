@@ -1,3 +1,6 @@
+# Monarchy 0.4.3 (2018-08-15)
+- FIX: NPE when `updateQuery()` is called before a DataSource is created by DataSource.Factory
+
 # Monarchy 0.4.2 (2018-07-27)
 - CHANGE/FIX: `ManagedChangeSet` uses `setValue` only for the initial load of synchronous query, otherwise uses `postValue` to prevent `java.lang.IllegalStateException: Cannot call this method while RecyclerView is computing a layout or scrolling`
 
