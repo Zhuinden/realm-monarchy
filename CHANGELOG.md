@@ -1,3 +1,8 @@
+# Monarchy 0.5.0 (2018-09-14)
+- Add `openManually()` and `closeManually()` methods for people who use Sync and need their session to stay alive in a controlled manner. Please note that this increments the Realm ref count by one, and cannot be called multiple times. (So `openManually` called once, then `closeManually` called once).
+
+- Add `createDataSourceFactory(Query, boolean asAsync)` to support creating a sync subscription through Paging. Please note that this is fairly experimental at this time.
+
 # Monarchy 0.4.3 (2018-08-15)
 - FIX: NPE when `updateQuery()` is called before a DataSource is created by DataSource.Factory
 
