@@ -19,11 +19,14 @@ class PagedLiveResults<T extends RealmModel>
 
     private Monarchy.RealmTiledDataSource<T> dataSource;
 
+    private final boolean asAsync;
+
     private boolean isActive;
 
-    PagedLiveResults(Monarchy monarchy, Monarchy.Query<T> query) {
+    PagedLiveResults(Monarchy monarchy, Monarchy.Query<T> query, boolean asAsync) {
         this.monarchy = monarchy;
         this.query = new AtomicReference<>(query);
+        this.asAsync = asAsync;
     }
 
     @Override
@@ -40,8 +43,12 @@ class PagedLiveResults<T extends RealmModel>
 
     @Override
     public RealmResults<T> createQuery(Realm realm) {
-        return query.get().createQuery(realm).findAll(); // sort/distinct should be handled with new predicate type.
-        // paged results must be based on synchronous query!
+        // sort/distinct should be handled with new predicate type.
+        if(asAsync) {
+            return query.get().createQuery(realm).findAllAsync();
+        } else {
+            return query.get().createQuery(realm).findAll();
+        }
     }
 
     @Override
@@ -49,7 +56,10 @@ class PagedLiveResults<T extends RealmModel>
         monarchy.doWithRealm(new Monarchy.RealmBlock() {
             @Override
             public void doWithRealm(Realm realm) {
-                dataSource.invalidate();
+                final Monarchy.RealmTiledDataSource<T> ds = dataSource;
+                if(ds != null) {
+                    ds.invalidate();
+                }
             }
         });
     }

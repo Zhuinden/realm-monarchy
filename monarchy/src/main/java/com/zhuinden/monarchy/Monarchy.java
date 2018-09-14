@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -184,7 +185,7 @@ public final class Monarchy {
         }
     };
 
-    <T extends RealmModel> void startListening(@NonNull final LiveResults<T> liveResults) {
+    <T extends RealmModel> void startListening(@Nullable final LiveResults<T> liveResults) {
         // build Realm instance
         if(refCount.getAndIncrement() == 0) {
             synchronized(LOCK) {
@@ -211,6 +212,9 @@ public final class Monarchy {
             public void run() {
                 Realm realm = realmThreadLocal.get();
                 checkRealmValid(realm);
+                if(liveResults == null) {
+                    return;
+                }
                 RealmResults<T> results = liveResults.createQuery(realm);
                 resultsRefs.get().put(liveResults, results);
                 results.addChangeListener(new RealmChangeListener<RealmResults<T>>() {
@@ -223,7 +227,7 @@ public final class Monarchy {
         });
     }
 
-    <T extends RealmModel> void stopListening(@NonNull final LiveResults<T> liveResults) {
+    <T extends RealmModel> void stopListening(@Nullable final LiveResults<T> liveResults) {
         Handler handler = this.handler.get();
         if(handler == null) {
             return; // edge case, hopefully doesn't happen
@@ -234,6 +238,9 @@ public final class Monarchy {
             public void run() {
                 Realm realm = realmThreadLocal.get();
                 checkRealmValid(realm);
+                if(liveResults == null) {
+                    return;
+                }
                 RealmResults<? extends RealmModel> realmResults = resultsRefs.get().remove(liveResults);
                 if(realmResults != null) {
                     realmResults.removeAllChangeListeners();
@@ -374,7 +381,7 @@ public final class Monarchy {
             public void doWithRealm(Realm realm) {
                 RealmResults<T> results = query.createQuery(realm).findAll();
                 List<U> list = new ArrayList<>(results.size());
-                for(T t: results) {
+                for(T t : results) {
                     list.add(mapper.map(t));
                 }
                 ref.set(list);
@@ -437,11 +444,69 @@ public final class Monarchy {
      *
      * @param query the query
      * @param <T>   the RealmModel type
-
      * @return the LiveData
      */
     public <T extends RealmModel> LiveData<ManagedChangeSet<T>> findAllManagedWithChangesSync(Query<T> query) {
         return findAllManagedWithChanges(query, false);
+    }
+
+    private final AtomicBoolean isForcedOpen = new AtomicBoolean(false);
+
+    /**
+     * Forcefully opens the Monarchy thread, keeping it alive until {@link Monarchy#closeManually()} is called.
+     */
+    public void openManually() {
+        if(isForcedOpen.compareAndSet(false, true)) {
+            startListening(null);
+        } else {
+            throw new IllegalStateException("The Monarchy thread is already forced open.");
+        }
+    }
+
+    /**
+     * If the Monarchy thread was opened manually, then this method can be used to decrement the forced reference count increment.
+     *
+     * This means that the Monarchy thread does not stop unless all observed LiveData are also inactive.
+     */
+    public void closeManually() {
+        if(isForcedOpen.compareAndSet(true, false)) {
+            stopListening(null);
+        } else {
+            throw new IllegalStateException("Cannot close Monarchy thread manually if it was not opened manually.");
+        }
+    }
+
+    /**
+     * Returns if the Monarchy thread is open.
+     *
+     * @return if the monarchy thread is open
+     */
+    public boolean isMonarchyThreadOpen() {
+        synchronized(LOCK) {
+            return handler.get() != null;
+        }
+    }
+
+    /**
+     * Posts the RealmBlock to the Monarchy thread, and executes it there.
+     *
+     * @param realmBlock the Realm block
+     * @throws IllegalStateException if the Monarchy thread is not open
+     */
+    public void postToMonarchyThread(final RealmBlock realmBlock) {
+        final Handler _handler = handler.get();
+        if(_handler == null) {
+            throw new IllegalStateException("Cannot post to Monarchy thread when the Monarchy thread is not open.");
+        } else {
+            _handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Realm realm = realmThreadLocal.get();
+                    checkRealmValid(realm);
+                    realmBlock.doWithRealm(realm);
+                }
+            });
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -450,10 +515,24 @@ public final class Monarchy {
 
     /**
      * Creates a DataSource.Factory of (Integer, T) that can be used for creating a paged result set.
+     *
+     * By default behavior, the created query is synchronous.
+     *
+     * @param query the query
      */
     public <T extends RealmModel> RealmDataSourceFactory<T> createDataSourceFactory(Query<T> query) {
+        return createDataSourceFactory(query, false);
+    }
+
+    /**
+     * Creates a DataSource.Factory of (Integer, T) that can be used for creating a paged result set.
+     *
+     * @param query   the query
+     * @param asAsync determines whether the created query uses the Async API.
+     */
+    public <T extends RealmModel> RealmDataSourceFactory<T> createDataSourceFactory(Query<T> query, boolean asAsync) {
         assertMainThread();
-        PagedLiveResults<T> liveResults = new PagedLiveResults<T>(this, query);
+        PagedLiveResults<T> liveResults = new PagedLiveResults<T>(this, query, asAsync);
         return new RealmDataSourceFactory<>(this, liveResults);
     }
 
@@ -577,7 +656,7 @@ public final class Monarchy {
         public int countItems() {
             Realm realm = monarchy.realmThreadLocal.get();
             RealmResults<T> results = (RealmResults<T>) monarchy.resultsRefs.get().get(liveResults);
-            if(realm.isClosed() || results == null || !results.isValid()) {
+            if(realm.isClosed() || results == null || !results.isValid() || !results.isLoaded()) {
                 return 0;
             }
             return results.size();
