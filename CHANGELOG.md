@@ -1,3 +1,6 @@
+# Monarchy 0.5.1 (2018-10-05)
+- Remove `createDataSourceFactory(Query, boolean asAsync)` because it doesn't actually work with Sync. :( 
+
 # Monarchy 0.5.0 (2018-09-14)
 - Add `openManually()` and `closeManually()` methods for people who use Sync and need their session to stay alive in a controlled manner. Please note that this increments the Realm ref count by one, and cannot be called multiple times. (So `openManually` called once, then `closeManually` called once).
 

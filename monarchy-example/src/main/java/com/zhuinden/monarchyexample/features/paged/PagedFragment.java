@@ -10,9 +10,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.zhuinden.monarchy.Monarchy;
 import com.zhuinden.monarchyexample.Dog;
@@ -25,6 +27,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnTextChanged;
 
 /**
  * Created by Zhuinden on 2017.12.21..
@@ -35,6 +38,9 @@ public class PagedFragment
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
+    @BindView(R.id.text_paged_search)
+    EditText searchText;
+
     @Inject
     Monarchy monarchy;
 
@@ -44,6 +50,11 @@ public class PagedFragment
     Observer<PagedList<Dog>> observer = dogs -> {
         pagedDogAdapter.submitList(dogs);
     };
+
+    @OnTextChanged(R.id.text_paged_search)
+    public void onSearchTextChanged(Editable text) {
+        tex
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -66,7 +77,7 @@ public class PagedFragment
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(pagedDogAdapter);
         DataSource.Factory<Integer, RealmDog> realmDataSourceFactory = monarchy.createDataSourceFactory(
-                realm -> realm.where(RealmDog.class), true);
+                realm -> realm.where(RealmDog.class));
         dataSourceFactory = realmDataSourceFactory.map(input -> Dog.create(input.getName()));
         dogs = monarchy.findAllPagedWithChanges(realmDataSourceFactory,
                                                 new LivePagedListBuilder<>(dataSourceFactory, 20));
