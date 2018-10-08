@@ -531,18 +531,8 @@ public final class Monarchy {
      * @param query the query
      */
     public <T extends RealmModel> RealmDataSourceFactory<T> createDataSourceFactory(Query<T> query) {
-        return createDataSourceFactory(query, false);
-    }
-
-    /**
-     * Creates a DataSource.Factory of (Integer, T) that can be used for creating a paged result set.
-     *
-     * @param query   the query
-     * @param asAsync determines whether the created query uses the Async API.
-     */
-    public <T extends RealmModel> RealmDataSourceFactory<T> createDataSourceFactory(Query<T> query, boolean asAsync) {
         assertMainThread();
-        PagedLiveResults<T> liveResults = new PagedLiveResults<T>(this, query, asAsync);
+        PagedLiveResults<T> liveResults = new PagedLiveResults<T>(this, query, false);
         return new RealmDataSourceFactory<>(this, liveResults);
     }
 
