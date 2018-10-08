@@ -185,6 +185,36 @@ public final class Monarchy {
         }
     };
 
+    // CALL THIS SYNC ON MONARCHY THREAD
+    <T extends RealmModel> void createAndObserveRealmQuery(final LiveResults<T> liveResults) {
+        Realm realm = realmThreadLocal.get();
+        checkRealmValid(realm);
+        if(liveResults == null) {
+            return;
+        }
+        RealmResults<T> results = liveResults.createQuery(realm);
+        resultsRefs.get().put(liveResults, results);
+        results.addChangeListener(new RealmChangeListener<RealmResults<T>>() {
+            @Override
+            public void onChange(@NonNull RealmResults<T> realmResults) {
+                liveResults.updateResults(realmResults.createSnapshot());
+            }
+        });
+    }
+
+    // CALL THIS SYNC ON MONARCHY THREAD
+    <T extends RealmModel> void destroyRealmQuery(final LiveResults<T> liveResults) {
+        Realm realm = realmThreadLocal.get();
+        checkRealmValid(realm);
+        if(liveResults == null) {
+            return;
+        }
+        RealmResults<? extends RealmModel> realmResults = resultsRefs.get().remove(liveResults);
+        if(realmResults != null) {
+            realmResults.removeAllChangeListeners();
+        }
+    }
+
     <T extends RealmModel> void startListening(@Nullable final LiveResults<T> liveResults) {
         // build Realm instance
         if(refCount.getAndIncrement() == 0) {
@@ -210,19 +240,7 @@ public final class Monarchy {
         handler.get().post(new Runnable() {
             @Override
             public void run() {
-                Realm realm = realmThreadLocal.get();
-                checkRealmValid(realm);
-                if(liveResults == null) {
-                    return;
-                }
-                RealmResults<T> results = liveResults.createQuery(realm);
-                resultsRefs.get().put(liveResults, results);
-                results.addChangeListener(new RealmChangeListener<RealmResults<T>>() {
-                    @Override
-                    public void onChange(@NonNull RealmResults<T> realmResults) {
-                        liveResults.updateResults(realmResults.createSnapshot());
-                    }
-                });
+                createAndObserveRealmQuery(liveResults);
             }
         });
     }
@@ -236,15 +254,7 @@ public final class Monarchy {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Realm realm = realmThreadLocal.get();
-                checkRealmValid(realm);
-                if(liveResults == null) {
-                    return;
-                }
-                RealmResults<? extends RealmModel> realmResults = resultsRefs.get().remove(liveResults);
-                if(realmResults != null) {
-                    realmResults.removeAllChangeListeners();
-                }
+                destroyRealmQuery(liveResults);
             }
         });
         // destroy Realm instance
@@ -521,18 +531,8 @@ public final class Monarchy {
      * @param query the query
      */
     public <T extends RealmModel> RealmDataSourceFactory<T> createDataSourceFactory(Query<T> query) {
-        return createDataSourceFactory(query, false);
-    }
-
-    /**
-     * Creates a DataSource.Factory of (Integer, T) that can be used for creating a paged result set.
-     *
-     * @param query   the query
-     * @param asAsync determines whether the created query uses the Async API.
-     */
-    public <T extends RealmModel> RealmDataSourceFactory<T> createDataSourceFactory(Query<T> query, boolean asAsync) {
         assertMainThread();
-        PagedLiveResults<T> liveResults = new PagedLiveResults<T>(this, query, asAsync);
+        PagedLiveResults<T> liveResults = new PagedLiveResults<T>(this, query, false);
         return new RealmDataSourceFactory<>(this, liveResults);
     }
 
@@ -700,7 +700,7 @@ public final class Monarchy {
      */
     public static final class RealmDataSourceFactory<T extends RealmModel>
             extends DataSource.Factory<Integer, T> {
-        Monarchy monarchy;
+        final Monarchy monarchy;
         final PagedLiveResults<T> pagedLiveResults;
 
         RealmDataSourceFactory(Monarchy monarchy, PagedLiveResults<T> pagedLiveResults) {
@@ -718,10 +718,25 @@ public final class Monarchy {
         /**
          * Updates the query that the datasource is evaluated by.
          *
+         * Please note that this method runs asynchronously.
+         *
          * @param query the query
          */
-        public final void updateQuery(Query<T> query) {
-            pagedLiveResults.updateQuery(query);
+        public final void updateQuery(final Query<T> query) {
+            Handler handler = monarchy.handler.get();
+            if(handler == null) {
+                return;
+            }
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    monarchy.destroyRealmQuery(pagedLiveResults);
+                    pagedLiveResults.updateQuery(query);
+                    monarchy.createAndObserveRealmQuery(pagedLiveResults);
+                    pagedLiveResults.invalidateDatasource();
+                }
+            });
+
         }
     }
 
