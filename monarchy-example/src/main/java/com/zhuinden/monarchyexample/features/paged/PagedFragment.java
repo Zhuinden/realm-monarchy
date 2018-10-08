@@ -20,6 +20,7 @@ import com.zhuinden.monarchy.Monarchy;
 import com.zhuinden.monarchyexample.Dog;
 import com.zhuinden.monarchyexample.R;
 import com.zhuinden.monarchyexample.RealmDog;
+import com.zhuinden.monarchyexample.RealmDogFields;
 import com.zhuinden.monarchyexample.application.CustomApplication;
 import com.zhuinden.monarchyexample.utils.BaseFragment;
 
@@ -28,6 +29,9 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnTextChanged;
+import io.realm.Case;
+import io.realm.Realm;
+import io.realm.RealmQuery;
 
 /**
  * Created by Zhuinden on 2017.12.21..
@@ -51,9 +55,19 @@ public class PagedFragment
         pagedDogAdapter.submitList(dogs);
     };
 
+    Monarchy.RealmDataSourceFactory<RealmDog> realmDataSourceFactory;
+
     @OnTextChanged(R.id.text_paged_search)
-    public void onSearchTextChanged(Editable text) {
-        tex
+    public void onSearchTextChanged(Editable editable) {
+        String text = editable.toString();
+        realmDataSourceFactory.updateQuery(realm -> {
+            RealmQuery<RealmDog> query = realm.where(RealmDog.class);
+            if(text.isEmpty()) {
+                return query;
+            } else {
+                return query.contains(RealmDogFields.NAME, text.trim(), Case.INSENSITIVE);
+            }
+        });
     }
 
     @Override
@@ -76,7 +90,7 @@ public class PagedFragment
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(pagedDogAdapter);
-        DataSource.Factory<Integer, RealmDog> realmDataSourceFactory = monarchy.createDataSourceFactory(
+        realmDataSourceFactory = monarchy.createDataSourceFactory(
                 realm -> realm.where(RealmDog.class));
         dataSourceFactory = realmDataSourceFactory.map(input -> Dog.create(input.getName()));
         dogs = monarchy.findAllPagedWithChanges(realmDataSourceFactory,
