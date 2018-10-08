@@ -39,7 +39,12 @@ class ManagedDogAdapter
 
     @Override
     public int getItemCount() {
-        return items == null ? 0 : items.size();
+        try {
+            return items == null ? 0 : items.size();
+        } catch(IllegalStateException e) {
+            return 0; // I should check `RealmResults.isValid()` here, but I'm using List<T>.
+            // RecyclerView is running the prefetch worker on the next Handler loop, but by then, Realm is closed.
+        }
     }
 
     public void updateData(List<RealmDog> items, @Nullable CustomDiffResult diffResult) {

@@ -72,6 +72,7 @@ public class ManagedFragment
     @Override
     public void onDestroyView() {
         changes.removeObserver(observer);
+        managedDogAdapter.notifyDataSetChanged(); // if Realm is closed, then the item count becomes 0. Adapter does not know this while scrolling.
         super.onDestroyView();
     }
 }
