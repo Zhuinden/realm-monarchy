@@ -94,7 +94,11 @@ public class PagedFragment
                 realm -> realm.where(RealmDog.class));
         dataSourceFactory = realmDataSourceFactory.map(input -> Dog.create(input.getName()));
         dogs = monarchy.findAllPagedWithChanges(realmDataSourceFactory,
-                                                new LivePagedListBuilder<>(dataSourceFactory, 20));
+                new LivePagedListBuilder<>(dataSourceFactory, new PagedList.Config.Builder()
+                        .setEnablePlaceholders(true)
+                        .setPageSize(20)
+                        .build())
+        );
         dogs.observeForever(observer); // detach != destroy in fragments so this is manual
     }
 
