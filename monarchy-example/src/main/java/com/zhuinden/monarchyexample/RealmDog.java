@@ -1,7 +1,6 @@
 package com.zhuinden.monarchyexample;
 
-import android.support.v7.util.DiffUtil;
-
+import androidx.recyclerview.widget.DiffUtil;
 import io.realm.RealmObject;
 
 /**

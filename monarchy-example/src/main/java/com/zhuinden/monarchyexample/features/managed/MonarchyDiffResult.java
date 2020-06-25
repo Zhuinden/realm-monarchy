@@ -1,6 +1,6 @@
 package com.zhuinden.monarchyexample.features.managed;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.zhuinden.monarchy.Monarchy;
 import com.zhuinden.monarchyexample.utils.CustomDiffResult;

@@ -1,13 +1,10 @@
 package com.zhuinden.monarchyexample.utils;
 
-import android.support.v4.app.Fragment;
+import com.zhuinden.simplestackextensions.fragments.KeyedFragment;
 
 /**
  * Created by Owner on 2017. 06. 29..
  */
 
-public class BaseFragment extends Fragment {
-    public final <T extends BaseKey> T getKey() {
-        return getArguments() != null ? getArguments().<T>getParcelable("KEY") : null;
-    }
+public class BaseFragment extends KeyedFragment {
 }

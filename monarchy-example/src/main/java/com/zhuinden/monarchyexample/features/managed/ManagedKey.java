@@ -12,7 +12,7 @@ import com.zhuinden.monarchyexample.utils.BaseKey;
 public abstract class ManagedKey
         extends BaseKey {
     @Override
-    protected BaseFragment createFragment() {
+    protected BaseFragment instantiateFragment() {
         return new ManagedFragment();
     }
 

@@ -1,12 +1,11 @@
 package com.zhuinden.monarchy;
 
-import android.arch.lifecycle.MutableLiveData;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import androidx.lifecycle.MutableLiveData;
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmModel;
@@ -16,7 +15,8 @@ import io.realm.RealmResults;
  * Created by Zhuinden on 2017.12.17..
  */
 
-class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>> implements LiveResults<T> {
+class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>>
+        implements LiveResults<T> {
     private final Monarchy monarchy;
     private final Monarchy.Query<T> query;
     private final Monarchy.Mapper<U, T> mapper;

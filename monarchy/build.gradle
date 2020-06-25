@@ -4,11 +4,11 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 29
+    buildToolsVersion '29.0.2'
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 27
+        minSdkVersion 16
+        targetSdkVersion 29
         versionCode 1
         versionName "0.1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -26,15 +26,16 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:support-annotations:27.1.1'
-    api "android.arch.lifecycle:extensions:1.1.1"
-    api "android.arch.paging:runtime:1.0.0"
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.assertj:assertj-core:3.9.1'
-    testImplementation 'org.mockito:mockito-core:2.15.0'
-    testImplementation 'org.robolectric:robolectric:3.4.2'
+    api("com.google.code.findbugs:jsr305:3.0.2")
+    api "androidx.lifecycle:lifecycle-livedata:2.2.0"
+    api "androidx.paging:paging-runtime:2.1.2" // For Kotlin use paging-runtime-ktx
+
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.assertj:assertj-core:3.11.1'
+    testImplementation 'org.mockito:mockito-core:2.19.0'
+    testImplementation 'org.robolectric:robolectric:4.2.1'
     testImplementation 'org.apache.maven:maven-ant-tasks:2.1.3'
-    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation 'junit:junit:4.13'
 }
 
 // build a jar with source files

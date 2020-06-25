@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/monarchy/monarchy.iml" filepath="$PROJECT_DIR$/monarchy/monarchy.iml" />
-      <module fileurl="file://$PROJECT_DIR$/monarchy-example/monarchy-example.iml" filepath="$PROJECT_DIR$/monarchy-example/monarchy-example.iml" />
-      <module fileurl="file://$PROJECT_DIR$/realm-monarchy.iml" filepath="$PROJECT_DIR$/realm-monarchy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/monarchy/monarchy.iml" filepath="$PROJECT_DIR$/monarchy/monarchy.iml" group="realm-monarchy/monarchy" />
+      <module fileurl="file://$PROJECT_DIR$/monarchy-example/monarchy-example.iml" filepath="$PROJECT_DIR$/monarchy-example/monarchy-example.iml" group="realm-monarchy/monarchy-example" />
+      <module fileurl="file://$PROJECT_DIR$/realm-monarchy.iml" filepath="$PROJECT_DIR$/realm-monarchy.iml" group="realm-monarchy" />
     </modules>
   </component>
 </project>

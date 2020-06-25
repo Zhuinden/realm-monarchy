@@ -1,3 +1,10 @@
+# Monarchy 0.7.0 (2020-06-25)
+- Update to AndroidX and Paging 2.
+
+- Update Realm to 7.0.0.
+
+- Increase minSDK to 16 (to match Realm).
+
 # Monarchy 0.5.1 (2018-10-08)
 - Remove `createDataSourceFactory(Query, boolean asAsync)` because it doesn't actually work with Sync. :( 
 

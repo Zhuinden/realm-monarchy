@@ -1,19 +1,10 @@
 package com.zhuinden.monarchy;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.paging.DataSource;
-import android.arch.paging.LivePagedListBuilder;
-import android.arch.paging.PagedList;
-import android.arch.paging.PositionalDataSource;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +17,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import androidx.annotation.WorkerThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Observer;
+import androidx.paging.DataSource;
+import androidx.paging.LivePagedListBuilder;
+import androidx.paging.PagedList;
+import androidx.paging.PositionalDataSource;
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -75,7 +77,7 @@ public final class Monarchy {
          *
          * @return the change set
          */
-        @NonNull
+        @Nonnull
         public OrderedCollectionChangeSet getOrderedCollectionChangeSet() {
             return orderedCollectionChangeSet;
         }
@@ -196,7 +198,7 @@ public final class Monarchy {
         resultsRefs.get().put(liveResults, results);
         results.addChangeListener(new RealmChangeListener<RealmResults<T>>() {
             @Override
-            public void onChange(@NonNull RealmResults<T> realmResults) {
+            public void onChange(@Nonnull RealmResults<T> realmResults) {
                 liveResults.updateResults(realmResults.createSnapshot());
             }
         });
@@ -579,7 +581,7 @@ public final class Monarchy {
         }
 
         @Override
-        public void execute(@NonNull Runnable command) {
+        public void execute(@Nonnull Runnable command) {
             Handler handler = monarchy.handler.get();
             if(handler == null) {
                 return; // this happens if the gap worker tries to fetch a new page,
@@ -605,8 +607,8 @@ public final class Monarchy {
         public abstract List<T> loadRange(int startPosition, int count);
 
         @Override
-        public final void loadInitial(@NonNull LoadInitialParams params,
-                                      @NonNull LoadInitialCallback<T> callback) {
+        public final void loadInitial(@Nonnull LoadInitialParams params,
+                                      @Nonnull LoadInitialCallback<T> callback) {
             int totalCount = countItems();
             if(totalCount == 0) {
                 callback.onResult(Collections.<T>emptyList(), 0, 0);
@@ -629,8 +631,8 @@ public final class Monarchy {
         }
 
         @Override
-        public final void loadRange(@NonNull LoadRangeParams params,
-                                    @NonNull LoadRangeCallback<T> callback) {
+        public final void loadRange(@Nonnull LoadRangeParams params,
+                                    @Nonnull LoadRangeCallback<T> callback) {
             List<T> list = loadRange(params.startPosition, params.loadSize);
             if(list != null) {
                 callback.onResult(list);

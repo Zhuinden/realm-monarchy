@@ -1,10 +1,9 @@
 package com.zhuinden.monarchy;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.paging.PagedList;
-
 import java.util.concurrent.atomic.AtomicReference;
 
+import androidx.lifecycle.MutableLiveData;
+import androidx.paging.PagedList;
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmModel;

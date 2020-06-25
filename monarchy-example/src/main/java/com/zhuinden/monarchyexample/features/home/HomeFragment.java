@@ -2,7 +2,6 @@ package com.zhuinden.monarchyexample.features.home;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import com.zhuinden.monarchyexample.features.mapped_rx.MappedRxKey;
 import com.zhuinden.monarchyexample.features.paged.PagedKey;
 import com.zhuinden.monarchyexample.utils.BaseFragment;
 
+import androidx.annotation.Nullable;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
