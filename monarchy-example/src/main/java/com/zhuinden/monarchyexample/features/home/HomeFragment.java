@@ -10,12 +10,14 @@ import com.zhuinden.monarchyexample.R;
 import com.zhuinden.monarchyexample.application.CustomApplication;
 import com.zhuinden.monarchyexample.application.MainActivity;
 import com.zhuinden.monarchyexample.features.copied.CopiedKey;
+import com.zhuinden.monarchyexample.features.frozen.FrozenKey;
 import com.zhuinden.monarchyexample.features.managed.ManagedKey;
 import com.zhuinden.monarchyexample.features.mapped.MappedKey;
 import com.zhuinden.monarchyexample.features.mapped_rx.MappedRxKey;
 import com.zhuinden.monarchyexample.features.paged.PagedKey;
 import com.zhuinden.monarchyexample.utils.BaseFragment;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -29,6 +31,11 @@ public class HomeFragment
     @OnClick(R.id.button_copied)
     public void onCopied(View view) {
         MainActivity.get(view.getContext()).navigateTo(CopiedKey.create());
+    }
+
+    @OnClick(R.id.button_frozen)
+    public void onFrozen(View view) {
+        MainActivity.get(view.getContext()).navigateTo(FrozenKey.create());
     }
 
     @OnClick(R.id.button_managed)
@@ -52,7 +59,7 @@ public class HomeFragment
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         CustomApplication.getInjector(context).inject(this);
     }
@@ -64,7 +71,7 @@ public class HomeFragment
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
     }

@@ -1,3 +1,8 @@
+# Monarchy 0.7.1 (2020-06-25)
+- Add support for `findAllFrozenWithChanges(Query)`.
+
+- INTERNAL: the internal RealmResults refs are no longer snapshot collections, although this doesn't seem to have any external effects.
+
 # Monarchy 0.7.0 (2020-06-25)
 - Update to AndroidX and Paging 2.
 

@@ -2,7 +2,6 @@ package com.zhuinden.monarchy;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import androidx.lifecycle.MutableLiveData;
@@ -12,21 +11,18 @@ import io.realm.RealmModel;
 import io.realm.RealmResults;
 
 /**
- * Created by Zhuinden on 2017.12.17..
+ * Created by Zhuinden on 2020.06.25.
  */
-
-class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>>
+class FrozenLiveResults<T extends RealmModel> extends MutableLiveData<List<T>>
         implements LiveResults<T> {
     private final Monarchy monarchy;
     private final Monarchy.Query<T> query;
-    private final Monarchy.Mapper<U, T> mapper;
 
     private boolean isActive;
 
-    MappedLiveResults(Monarchy monarchy, Monarchy.Query<T> query, Monarchy.Mapper<U, T> mapper) {
+    FrozenLiveResults(Monarchy monarchy, Monarchy.Query<T> query) {
         this.monarchy = monarchy;
         this.query = query;
-        this.mapper = mapper;
     }
 
     @Override
@@ -37,8 +33,8 @@ class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>
 
     @Override
     public void onInactive() {
-        monarchy.stopListening(this);
         isActive = false;
+        monarchy.stopListening(this);
     }
 
     @Override
@@ -47,17 +43,8 @@ class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>
     }
 
     @Override
-    public void updateResults(final OrderedRealmCollection<T> realmResults) {
-        monarchy.doWithRealm(new Monarchy.RealmBlock() {
-            @Override
-            public void doWithRealm(Realm realm) {
-                List<U> list = new ArrayList<>(realmResults.size());
-                for(T t: realmResults) {
-                    list.add(mapper.map(t));
-                }
-                postValue(Collections.unmodifiableList(list));
-            }
-        });
+    public void updateResults(final OrderedRealmCollection<T> realmCollection) {
+        postValue(Collections.unmodifiableList(new ArrayList<>(realmCollection.freeze())));
     }
 
     @Override

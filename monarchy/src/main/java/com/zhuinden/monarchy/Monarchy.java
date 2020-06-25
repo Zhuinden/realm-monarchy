@@ -199,7 +199,7 @@ public final class Monarchy {
         results.addChangeListener(new RealmChangeListener<RealmResults<T>>() {
             @Override
             public void onChange(@Nonnull RealmResults<T> realmResults) {
-                liveResults.updateResults(realmResults.createSnapshot());
+                liveResults.updateResults(realmResults);
             }
         });
     }
@@ -414,6 +414,20 @@ public final class Monarchy {
     public <T extends RealmModel> LiveData<List<T>> findAllCopiedWithChanges(Query<T> query) {
         assertMainThread();
         return new CopiedLiveResults<>(this, query);
+    }
+
+    /**
+     * Returns a LiveData that evaluates the new results on a background looper thread. The observer receives new data when the database changes.
+     *
+     * The items are frozen with `realmResults.freeze()`.
+     *
+     * @param query the query
+     * @param <T>   the RealmModel type
+     * @return the LiveData
+     */
+    public <T extends RealmModel> LiveData<List<T>> findAllFrozenWithChanges(Query<T> query) {
+        assertMainThread();
+        return new FrozenLiveResults<>(this, query);
     }
 
     /**

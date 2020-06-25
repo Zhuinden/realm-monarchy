@@ -3,6 +3,7 @@ package com.zhuinden.monarchyexample.application.injection;
 import com.zhuinden.monarchy.Monarchy;
 import com.zhuinden.monarchyexample.application.MainActivity;
 import com.zhuinden.monarchyexample.features.copied.CopiedFragment;
+import com.zhuinden.monarchyexample.features.frozen.FrozenFragment;
 import com.zhuinden.monarchyexample.features.home.HomeFragment;
 import com.zhuinden.monarchyexample.features.managed.ManagedFragment;
 import com.zhuinden.monarchyexample.features.mapped.MappedFragment;
@@ -38,4 +39,6 @@ public interface ApplicationComponent {
     void inject(MappedRxFragment mappedRxFragment);
 
     void inject(PagedFragment pagedFragment);
+
+    void inject(FrozenFragment frozenFragment);
 }
