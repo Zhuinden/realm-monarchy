@@ -2,6 +2,7 @@ package com.zhuinden.monarchy;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
@@ -16,11 +17,15 @@ class CopiedLiveResults<T extends RealmModel> extends MutableLiveData<List<T>>
     private final Monarchy monarchy;
     private final Monarchy.Query<T> query;
 
+    private final int maxDepth;
+
     private boolean isActive;
 
-    CopiedLiveResults(Monarchy monarchy, Monarchy.Query<T> query) {
+    CopiedLiveResults(Monarchy monarchy, Monarchy.Query<T> query, int maxDepth) {
         this.monarchy = monarchy;
         this.query = query;
+
+        this.maxDepth = maxDepth;
     }
 
     @Override
@@ -44,8 +49,8 @@ class CopiedLiveResults<T extends RealmModel> extends MutableLiveData<List<T>>
     public void updateResults(final OrderedRealmCollection<T> realmCollection) {
         monarchy.doWithRealm(new Monarchy.RealmBlock() {
             @Override
-            public void doWithRealm(Realm realm) {
-                postValue(realm.copyFromRealm(realmCollection));
+            public void doWithRealm(@NonNull Realm realm) {
+                postValue(realm.copyFromRealm(realmCollection, maxDepth));
             }
         });
     }

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
@@ -50,7 +51,7 @@ class MappedLiveResults<T extends RealmModel, U> extends MutableLiveData<List<U>
     public void updateResults(final OrderedRealmCollection<T> realmResults) {
         monarchy.doWithRealm(new Monarchy.RealmBlock() {
             @Override
-            public void doWithRealm(Realm realm) {
+            public void doWithRealm(@NonNull Realm realm) {
                 List<U> list = new ArrayList<>(realmResults.size());
                 for(T t: realmResults) {
                     list.add(mapper.map(t));

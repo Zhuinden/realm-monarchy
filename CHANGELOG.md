@@ -1,3 +1,14 @@
+# Monarchy 1.0.0 (2020-10-10)
+- BREAKING: Remove AndroidX Paging support. Due to the massive shift between Paging 2 and Paging 3, having the direct dependency on Paging is problematic.
+
+Prefer frozen results instead, as it is more performant.
+
+- Add support for `maxDepth` on copied results. (#11)
+
+- Add some missing nullability annotations.
+
+- Update Realm-Java to 7.0.8.
+
 # Monarchy 0.7.1 (2020-06-25)
 - Add support for `findAllFrozenWithChanges(Query)`.
 

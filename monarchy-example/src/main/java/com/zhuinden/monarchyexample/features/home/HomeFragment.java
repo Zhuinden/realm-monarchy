@@ -14,7 +14,6 @@ import com.zhuinden.monarchyexample.features.frozen.FrozenKey;
 import com.zhuinden.monarchyexample.features.managed.ManagedKey;
 import com.zhuinden.monarchyexample.features.mapped.MappedKey;
 import com.zhuinden.monarchyexample.features.mapped_rx.MappedRxKey;
-import com.zhuinden.monarchyexample.features.paged.PagedKey;
 import com.zhuinden.monarchyexample.utils.BaseFragment;
 
 import androidx.annotation.NonNull;
@@ -51,11 +50,6 @@ public class HomeFragment
     @OnClick(R.id.button_mapped_rx)
     public void onMappedRx(View view) {
         MainActivity.get(view.getContext()).navigateTo(MappedRxKey.create());
-    }
-
-    @OnClick(R.id.button_paged)
-    public void onPaged(View view) {
-        MainActivity.get(view.getContext()).navigateTo(PagedKey.create());
     }
 
     @Override
