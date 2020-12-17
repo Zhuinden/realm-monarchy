@@ -8,7 +8,7 @@ With that, you can use a singleton Monarchy instance to manage Realm queries, an
 
 To use `Monarchy`, you need to add as a dependency:
 
-    implementation 'com.github.Zhuinden:realm-monarchy:1.0.0'
+    implementation 'com.github.Zhuinden:realm-monarchy:2.0.0'
     
 And it's available on Jitpack, so you need to add
 
@@ -56,13 +56,12 @@ LiveData<List<Dog>> dogs = monarchy.findAllMappedWithChanges(realm -> realm.wher
 dogs.observe(this, dogs -> {...});
 ```
 
-Using the Android Architecture Components: Paging Library, you can now also obtain the RealmResults as a `LiveData<PagedList<T>>`.
+Or even as frozen results
+
+You can also create a Mapper which will map the RealmObject to something else
 
 ``` java
-DataSource.Factory<Integer, RealmDog> realmDataSourceFactory = monarchy.createDataSourceFactory(realm -> realm.where(RealmDog.class));
-DataSource.Factory<Integer, Dog> dataSourceFactory = realmDataSourceFactory.map(input -> Dog.create(input.getName()));
-LiveData<PagedList<Dog>> dogs = monarchy.findAllPagedWithChanges(realmDataSourceFactory,
-                                                new LivePagedListBuilder<>(dataSourceFactory, 20));
+LiveData<List<RealmDog>> dogs = monarchy.findAllFrozenWithChanges(realm -> realm.where(RealmDog.class));
 dogs.observe(this, dogs -> {...});
 ```
 
@@ -108,6 +107,8 @@ Listening for copied/mapped results happens on the background looper thread.
 
 Listening for paged results happens on the background looper thread.
 
+Listening for frozen results happens on the background looper thread.
+
 Listening for managed results happens on the UI thread.
 
 # Possible FAQs
@@ -131,27 +132,15 @@ or something like that. Tricky stuff. So if you need LiveData exposed to Rx, the
 Flowable<List<Dog>> dogs = Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(lifecycleOwner, liveData));
 ```
 
-with the help of 
-
-```
-implementation "android.arch.lifecycle:reactivestreams:1.1.1"
-```
-
 ## How do I open a Realm instance and close it manually, without being in a block?
 
-This is where most errors in Realm usage come from, so I specifically did not add an `open()`/`close()` method to `Monarchy`.
+This is where most errors in Realm usage come from, so it is just generally not recommended.
 
 Realm already manages a reference counted cache for thread-local Realm instances, where of course `getInstance()` increases ref count. So if that doesn't suit you, feel free to keep your own `ThreadLocal<Realm>` cache.
 
 ## When should I compact the Realm?
 
 Probably when you've finished every Activity. When's that? If you have only 1 finishing Activity, then it's easy, if you have more Activities, then that's a different problem :D
-
-## How should I do schema migrations?
-
-[`RealmAutoMigration`](https://github.com/Zhuinden/realm-helpers/blob/872233b7026546323259d4d608adce6915d53b0c/realm-auto-migration/src/main/java/com/zhuinden/realmautomigration/RealmAutoMigration.java) can help. 
-
-Once you're done migrating your current fields to new fields, it can match the fields and migrate from one schema to another, removing any mismatched properties (or adding the new ones).
 
 ## Why is this library possible?
 

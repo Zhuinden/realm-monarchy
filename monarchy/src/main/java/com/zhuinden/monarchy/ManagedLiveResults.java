@@ -62,11 +62,6 @@ class ManagedLiveResults<T extends RealmModel>
         public Throwable getError() {
             return null;
         }
-
-        @Override
-        public boolean isCompleteResult() {
-            return true;
-        }
     }
     
     private final Monarchy monarchy;

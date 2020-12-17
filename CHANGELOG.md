@@ -1,3 +1,9 @@
+# Monarchy 2.0.0 (2020-12-17)
+
+- Update Realm-Java to 10.2.0.
+
+Due to a change on Realm-Java side (removal of `isCompleteResult`), this is probably not binary-compatible with Realm 7.0.x.
+
 # Monarchy 1.0.0 (2020-10-10)
 - BREAKING: Remove AndroidX Paging support. Due to the massive shift between Paging 2 and Paging 3, having the direct dependency on Paging is problematic.
 
