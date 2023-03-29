@@ -8,7 +8,7 @@ With that, you can use a singleton Monarchy instance to manage Realm queries, an
 
 To use `Monarchy`, you need to add as a dependency:
 
-    implementation 'com.github.Zhuinden:realm-monarchy:2.0.0'
+    implementation 'com.github.Zhuinden:realm-monarchy:2.1.0'
     
 And it's available on Jitpack, so you need to add
 
@@ -21,6 +21,22 @@ allprojects {
     // ...
 }
 ```
+
+
+In newer projects, you need to also update the `settings.gradle` file's `dependencyResolutionManagement` block:
+
+```
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }  // <--
+        jcenter() // Warning: this repository is going to shut down soon
+    }
+}
+```
+
 
 # How can I use it?
 
@@ -144,7 +160,7 @@ Probably when you've finished every Activity. When's that? If you have only 1 fi
 
 ## Why is this library possible?
 
-Because `LiveData` from the Android Architecture Components is the best thing since sliced bread.
+Because `LiveData` made it possible.
 
 ## License
 

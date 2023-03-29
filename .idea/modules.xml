@@ -5,6 +5,12 @@
       <module fileurl="file://$PROJECT_DIR$/realm-monarchy.iml" filepath="$PROJECT_DIR$/realm-monarchy.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/monarchy/realm-monarchy.monarchy.iml" filepath="$PROJECT_DIR$/.idea/modules/monarchy/realm-monarchy.monarchy.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/monarchy-example/realm-monarchy.monarchy-example.iml" filepath="$PROJECT_DIR$/.idea/modules/monarchy-example/realm-monarchy.monarchy-example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/monarchy-example/realm-monarchy.monarchy-example.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/monarchy-example/realm-monarchy.monarchy-example.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/monarchy-example/realm-monarchy.monarchy-example.main.iml" filepath="$PROJECT_DIR$/.idea/modules/monarchy-example/realm-monarchy.monarchy-example.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/monarchy-example/realm-monarchy.monarchy-example.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/monarchy-example/realm-monarchy.monarchy-example.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/monarchy/realm-monarchy.monarchy.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/monarchy/realm-monarchy.monarchy.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/monarchy/realm-monarchy.monarchy.main.iml" filepath="$PROJECT_DIR$/.idea/modules/monarchy/realm-monarchy.monarchy.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/monarchy/realm-monarchy.monarchy.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/monarchy/realm-monarchy.monarchy.unitTest.iml" />
     </modules>
   </component>
 </project>

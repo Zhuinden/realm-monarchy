@@ -1,3 +1,13 @@
+# Monarchy 2.1.0 (2023-03-29)
+
+- Update Realm-Java to 10.13.1.
+
+- Update androidx.lifecycle:lifecycle-livedata from 2.2.0 to 2.6.1.
+
+- Update compileSdk to 33.
+
+Theoretically, there are no further changes involved with this update.
+
 # Monarchy 2.0.0 (2020-12-17)
 
 - Update Realm-Java to 10.2.0.
@@ -5,6 +15,7 @@
 Due to a change on Realm-Java side (removal of `isCompleteResult`), this is probably not binary-compatible with Realm 7.0.x.
 
 # Monarchy 1.0.0 (2020-10-10)
+
 - BREAKING: Remove AndroidX Paging support. Due to the massive shift between Paging 2 and Paging 3, having the direct dependency on Paging is problematic.
 
 Prefer frozen results instead, as it is more performant.
