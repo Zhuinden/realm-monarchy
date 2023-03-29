@@ -87,7 +87,7 @@ afterEvaluate {
 
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.github.Zhuinden'
-                artifactId = 'realm-monarchyt'
+                artifactId = 'realm-monarchy'
                 version = '2.1.0'
 
                 pom.withXml {
