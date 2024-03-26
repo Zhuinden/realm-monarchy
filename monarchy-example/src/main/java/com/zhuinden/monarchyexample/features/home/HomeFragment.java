@@ -18,8 +18,8 @@ import com.zhuinden.monarchyexample.utils.BaseFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
+
 
 /**
  * Created by Zhuinden on 2017.12.21..
@@ -27,31 +27,6 @@ import butterknife.OnClick;
 
 public class HomeFragment
         extends BaseFragment {
-    @OnClick(R.id.button_copied)
-    public void onCopied(View view) {
-        MainActivity.get(view.getContext()).navigateTo(CopiedKey.create());
-    }
-
-    @OnClick(R.id.button_frozen)
-    public void onFrozen(View view) {
-        MainActivity.get(view.getContext()).navigateTo(FrozenKey.create());
-    }
-
-    @OnClick(R.id.button_managed)
-    public void onManaged(View view) {
-        MainActivity.get(view.getContext()).navigateTo(ManagedKey.create());
-    }
-
-    @OnClick(R.id.button_mapped)
-    public void onMapped(View view) {
-        MainActivity.get(view.getContext()).navigateTo(MappedKey.create());
-    }
-
-    @OnClick(R.id.button_mapped_rx)
-    public void onMappedRx(View view) {
-        MainActivity.get(view.getContext()).navigateTo(MappedRxKey.create());
-    }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -67,6 +42,25 @@ public class HomeFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
+
+        view.findViewById(R.id.button_copied).setOnClickListener((v) -> {
+            MainActivity.get(view.getContext()).navigateTo(CopiedKey.create());
+        });
+
+        view.findViewById(R.id.button_frozen).setOnClickListener((v) -> {
+            MainActivity.get(view.getContext()).navigateTo(FrozenKey.create());
+        });
+
+        view.findViewById(R.id.button_managed).setOnClickListener((v) -> {
+            MainActivity.get(view.getContext()).navigateTo(ManagedKey.create());
+        });
+
+        view.findViewById(R.id.button_mapped).setOnClickListener((v) -> {
+            MainActivity.get(view.getContext()).navigateTo(MappedKey.create());
+        });
+
+        view.findViewById(R.id.button_mapped_rx).setOnClickListener((v) -> {
+            MainActivity.get(view.getContext()).navigateTo(MappedRxKey.create());
+        });
     }
 }

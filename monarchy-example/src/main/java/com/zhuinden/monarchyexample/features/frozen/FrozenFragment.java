@@ -22,8 +22,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 
 /**
  * Created by Zhuinden on 2020.06.25.
@@ -31,7 +31,6 @@ import butterknife.ButterKnife;
 
 public class FrozenFragment
         extends BaseFragment {
-    @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
     @Inject
@@ -58,7 +57,7 @@ public class FrozenFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         frozenDogAdapter = new FrozenDogAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));

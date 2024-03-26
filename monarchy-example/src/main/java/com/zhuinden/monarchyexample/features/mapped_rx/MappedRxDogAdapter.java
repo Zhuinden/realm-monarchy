@@ -12,8 +12,8 @@ import com.zhuinden.monarchyexample.R;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 
 /**
  * Created by Zhuinden on 2017.12.21..
@@ -48,12 +48,11 @@ class MappedRxDogAdapter
 
     public static class ViewHolder
             extends RecyclerView.ViewHolder {
-        @BindView(R.id.dog_name)
         TextView textView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            textView = itemView.findViewById(R.id.dog_name);
         }
 
         public void bind(Dog dog) {

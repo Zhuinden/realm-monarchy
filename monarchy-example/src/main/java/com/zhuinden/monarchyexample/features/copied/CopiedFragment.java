@@ -23,8 +23,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 
 /**
  * Created by Zhuinden on 2017.12.21..
@@ -32,7 +32,6 @@ import butterknife.ButterKnife;
 
 public class CopiedFragment
         extends BaseFragment {
-    @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
     @Inject
@@ -59,7 +58,7 @@ public class CopiedFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         copiedDogAdapter = new CopiedDogAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));

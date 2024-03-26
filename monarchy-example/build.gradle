@@ -40,11 +40,9 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
-    implementation 'com.github.Zhuinden:simple-stack:2.6.5'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments:2.2.5'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:services:2.2.5'
-    implementation 'com.jakewharton:butterknife:10.2.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
+    implementation 'com.github.Zhuinden:simple-stack:2.8.0'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments:2.3.3'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:services:2.3.3'
     testImplementation 'junit:junit:4.13.2'
 
     compileOnly "com.google.auto.value:auto-value:1.5.2"
@@ -52,8 +50,8 @@ dependencies {
     implementation 'nz.bradcampbell:paperparcel:2.0.4'
     kapt 'nz.bradcampbell:paperparcel-compiler:2.0.4'
     kapt 'com.github.reggar:auto-value-ignore-hash-equals:1.1.4'
-    implementation 'com.google.dagger:dagger:2.45'
-    kapt 'com.google.dagger:dagger-compiler:2.45'
+    implementation 'com.google.dagger:dagger:2.51'
+    kapt 'com.google.dagger:dagger-compiler:2.51'
 
     implementation "androidx.lifecycle:lifecycle-reactivestreams:2.6.1"
 

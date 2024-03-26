@@ -28,8 +28,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -47,7 +47,6 @@ public class MappedRxFragment
 
     Flowable<List<Dog>> dogs;
 
-    @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
     @Inject
@@ -80,7 +79,7 @@ public class MappedRxFragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         mappedRxDogAdapter = new MappedRxDogAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));

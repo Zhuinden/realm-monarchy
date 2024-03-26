@@ -20,8 +20,8 @@ import com.zhuinden.monarchyexample.utils.BaseFragment;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 
 /**
  * Created by Zhuinden on 2017.12.21..
@@ -31,7 +31,6 @@ public class ManagedFragment
         extends BaseFragment {
     ManagedDogAdapter managedDogAdapter;
 
-    @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
     @Inject
@@ -60,7 +59,7 @@ public class ManagedFragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         managedDogAdapter = new ManagedDogAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));

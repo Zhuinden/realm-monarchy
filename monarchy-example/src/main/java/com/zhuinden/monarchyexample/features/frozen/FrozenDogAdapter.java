@@ -12,8 +12,8 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 
 /**
  * Created by Zhuinden on 2020.06.25.
@@ -50,12 +50,11 @@ class FrozenDogAdapter
 
     public static class ViewHolder
             extends RecyclerView.ViewHolder {
-        @BindView(R.id.dog_name)
         TextView textView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            textView = itemView.findViewById(R.id.dog_name);
         }
 
         public void bind(RealmDog dog) {

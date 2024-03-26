@@ -1,3 +1,7 @@
+# Monarchy 2.2.0 (2024-03-26)
+
+- Update Realm-Java to 10.18.0.
+
 # Monarchy 2.1.0 (2023-03-29)
 
 - Update Realm-Java to 10.13.1.

@@ -26,7 +26,6 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import androidx.appcompat.app.AppCompatActivity;
-import butterknife.ButterKnife;
 
 public class MainActivity
         extends AppCompatActivity
@@ -56,7 +55,6 @@ public class MainActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
 
         fragmentStateChanger = new DefaultFragmentStateChanger(getSupportFragmentManager(), R.id.root);
 
