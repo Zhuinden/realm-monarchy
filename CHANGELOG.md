@@ -1,3 +1,9 @@
+# Monarchy 2.2.1 (2026-04-29)
+
+- Update Realm-Java to 10.19.0. This is the final update of Realm-Java after it has been permanently abandoned by MongoDB.
+
+- Add realmfieldnameshelper-2.0.0.jar to the libs of monarchy-example, it was breaking the build by no longer being on JCenter.
+
 # Monarchy 2.2.0 (2024-03-26)
 
 - Update Realm-Java to 10.18.0.
